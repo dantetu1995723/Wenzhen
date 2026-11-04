@@ -310,19 +310,34 @@ button {
   flex-shrink: 0;
 }
 
-/* WeChat H5 Minimalist White-Tech Header (True Absolute Center & Perfectly Symmetrical Left/Right Capsules) */
+/* WeChat H5 Minimalist White-Tech Unified Header (Row 1: Symmetrical Nav Capsules + Brand, Row 2: Integrated Patient & Clear Capsule Bar) */
 .h5-topbar {
   position: relative;
   z-index: 20;
-  height: 48px;
-  padding: 0 10px;
+  height: 50px;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(44, 136, 220, 0.10);
+  box-shadow: 0 3px 12px rgba(20, 44, 70, 0.03);
+  flex-shrink: 0;
+}
+
+.h5-topbar.has-context-bar {
+  height: 50px;
+}
+
+.topbar-main-row {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(44, 136, 220, 0.08);
-  flex-shrink: 0;
 }
 
 .topbar-left {
@@ -352,19 +367,21 @@ button {
   z-index: 2;
 }
 
-/* Perfectly Symmetrical White-Tech Navigation Capsules (Left: Back, Right: Person Select) */
+/* Perfectly Symmetrical 1:1 White-Tech Navigation Capsules (Left: Back, Right: Person Select / Save) */
 .topbar-nav-capsule {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
   height: 29px;
-  min-width: 66px;
-  padding: 0 10px;
+  padding: 0 8px;
   border-radius: 99px;
   background: #f4f9fe;
-  border: 1.2px solid rgba(44, 136, 220, 0.24);
-  box-shadow: 0 2px 6px rgba(44, 136, 220, 0.05);
+  border: 1.2px solid rgba(44, 136, 220, 0.22);
+  box-shadow: 0 2px 6px rgba(44, 136, 220, 0.04);
   color: var(--hm-text);
   font-size: 11.5px;
   font-weight: 750;
@@ -372,6 +389,7 @@ button {
   transition: all 0.2s ease;
   white-space: nowrap;
   user-select: none;
+  box-sizing: border-box;
 }
 
 .topbar-nav-capsule svg {
@@ -391,7 +409,9 @@ button {
 }
 
 .topbar-nav-capsule.pt-capsule {
-  max-width: 82px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
 }
 
 .topbar-nav-capsule.pt-capsule #topbar-pt-text {
@@ -410,17 +430,22 @@ button {
 .topbar-nav-capsule.action-capsule {
   color: var(--hm-blue);
   border-color: rgba(44, 136, 220, 0.3);
+  width: auto;
+  min-width: 78px;
+  max-width: 92px;
   padding: 0 10px;
 }
 
-/* Save Capsule on Profile Edit Topbar (Identical spec, background, and color as Left Back Capsule) */
+/* Save Capsule on Profile Edit Topbar (Identical 78x29 spec, background, and color as Left Back Capsule) */
 .topbar-nav-capsule.save-capsule {
   color: var(--hm-text);
-  border-color: rgba(44, 136, 220, 0.24);
+  border-color: rgba(44, 136, 220, 0.22);
   background: #f4f9fe;
-  min-width: 66px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
   height: 29px;
-  padding: 0 10px;
+  padding: 0 8px;
 }
 
 .topbar-nav-capsule.save-capsule svg {
@@ -810,10 +835,14 @@ button {
   display: block;
 }
 
+.identity-name-box {
+  position: relative;
+}
+
 .identity-name-box input {
   width: 100%;
   height: 33px;
-  padding: 0 10px;
+  padding: 0 32px 0 10px;
   border-radius: 9px;
   background: #f7fbff;
   border: 1px solid rgba(44, 136, 220, 0.22);
@@ -821,11 +850,175 @@ button {
   font-size: 13px;
   font-weight: 800;
   outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
-.identity-name-box input:focus {
+.identity-name-box input:focus,
+.name-combo-wrap.open input {
   border-color: var(--hm-cyan);
   background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(28, 188, 208, 0.14);
+}
+
+.name-combo-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.name-combo-arrow-btn {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 27px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hm-blue);
+  background: rgba(44, 136, 220, 0.08);
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.name-combo-arrow-btn:hover,
+.name-combo-wrap.open .name-combo-arrow-btn {
+  background: rgba(28, 188, 208, 0.18);
+  color: #0e7490;
+}
+
+.name-combo-arrow-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.name-combo-wrap.open .name-combo-arrow-btn svg {
+  transform: rotate(180deg);
+}
+
+.name-combo-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 314px;
+  max-height: 228px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.99);
+  border: 1.5px solid rgba(28, 188, 208, 0.45);
+  box-shadow:
+    0 14px 32px rgba(15, 35, 58, 0.18),
+    0 2px 8px rgba(28, 188, 208, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 65;
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.name-combo-wrap.open .name-combo-menu {
+  display: flex;
+}
+
+.name-combo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.name-combo-item:hover {
+  background: #f2f8fe;
+}
+
+.name-combo-item.active {
+  background: linear-gradient(90deg, rgba(28, 188, 208, 0.12) 0%, rgba(44, 136, 220, 0.1) 100%);
+  border: 1px solid rgba(28, 188, 208, 0.34);
+}
+
+.name-combo-select {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.name-combo-pt-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--hm-text);
+  white-space: nowrap;
+}
+
+.name-combo-self-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: rgba(28, 188, 208, 0.15);
+  color: #0d8a9c;
+  flex-shrink: 0;
+}
+
+.name-combo-pt-meta {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--hm-text-sub);
+  white-space: nowrap;
+}
+
+.name-combo-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.name-combo-act-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.name-combo-act-btn.edit {
+  background: rgba(44, 136, 220, 0.1);
+  color: var(--hm-blue);
+}
+
+.name-combo-act-btn.edit:hover {
+  background: var(--hm-blue);
+  color: #ffffff;
+}
+
+.name-combo-act-btn.del {
+  background: rgba(239, 68, 68, 0.09);
+  color: #dc2626;
+}
+
+.name-combo-act-btn.del:hover,
+.name-combo-act-btn.del.is-confirm {
+  background: #ef4444;
+  color: #ffffff;
 }
 
 .gender-seg-control {
@@ -1596,13 +1789,161 @@ button {
   box-shadow: 0 8px 20px rgba(28, 188, 208, 0.34);
 }
 
+/* ==========================================================================
+   Unified Single-Row Chat Header (按钮审美一体化重构)
+   [ ‹ 返回 ]      HEARTMED 品牌标志      [ 🗑 清空 ]
+                 ( 李四 | 男 | 62岁 ▾ )
+   - 左右两颗胶囊 78×29 完全镜像：返回 ↔ 清空（一进一出、一回溯一重置）
+   - 中轴为「品牌 + 当前问诊人物身份签」上下堆叠，身份签即人物切换入口，消除重复姓名
+   - 清空采用“原地变形二次确认”：同一颗胶囊变红 + 底部倒计时细线，无额外按钮
+   ========================================================================== */
+.topbar-title-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+
+/* Identity Tag = Patient Switcher (姓名 | 性别 | 年龄 ▾) */
+.topbar-identity-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+  padding: 0 8px 0 7px;
+  border-radius: 99px;
+  background: rgba(44, 136, 220, 0.07);
+  border: 1px solid rgba(44, 136, 220, 0.12);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.topbar-identity-tag:hover {
+  background: rgba(28, 188, 208, 0.12);
+  border-color: rgba(28, 188, 208, 0.38);
+}
+
+.topbar-identity-tag .history-bar-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--hm-cyan);
+  box-shadow: 0 0 5px rgba(28, 188, 208, 0.6);
+  flex-shrink: 0;
+}
+
+.topbar-identity-tag .history-bar-person {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--hm-text);
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-identity-tag .history-bar-divider {
+  width: 1px;
+  height: 8px;
+  background: rgba(44, 136, 220, 0.28);
+  flex-shrink: 0;
+}
+
+.topbar-identity-tag .history-bar-meta {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--hm-text-sub);
+}
+
+.topbar-identity-tag .identity-chevron {
+  color: var(--hm-blue);
+  margin-left: -2px;
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.topbar-identity-tag:hover .identity-chevron {
+  transform: translateY(1px);
+}
+
+/* Right Mirror Capsule: Clear History (same 78×29 spec as 返回) */
+.topbar-nav-capsule.clear-capsule {
+  position: relative;
+  overflow: hidden;
+}
+
+.topbar-nav-capsule.clear-capsule:hover:not(.is-empty):not(.is-confirming) {
+  background: #fff6f6;
+  border-color: rgba(239, 68, 68, 0.34);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.topbar-nav-capsule.clear-capsule:hover:not(.is-empty):not(.is-confirming) svg {
+  color: #dc2626;
+}
+
+/* Empty / Already Cleared */
+.topbar-nav-capsule.clear-capsule.is-empty {
+  color: var(--hm-text-muted);
+  background: #f7fafd;
+  border-color: rgba(44, 136, 220, 0.12);
+  box-shadow: none;
+  cursor: default;
+  transform: none;
+}
+
+.topbar-nav-capsule.clear-capsule.is-empty svg {
+  color: var(--hm-text-muted);
+}
+
+/* In-Place Morph Confirm: same capsule turns red with a countdown hairline */
+.topbar-nav-capsule.clear-capsule.is-confirming {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #dc2626;
+  font-weight: 800;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  animation: clearCapsuleNudge 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbar-nav-capsule.clear-capsule.is-confirming svg {
+  display: none;
+}
+
+.topbar-nav-capsule.clear-capsule.is-confirming::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 3px;
+  height: 1.5px;
+  border-radius: 99px;
+  background: rgba(239, 68, 68, 0.55);
+  transform-origin: left center;
+  animation: clearCountdown 3.8s linear forwards;
+}
+
+@keyframes clearCountdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@keyframes clearCapsuleNudge {
+  0% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
 /* Comfortable High-Clarity Clinical Dialogue Stream (Maximized Height) */
 .cyber-chat-list {
   position: relative;
   z-index: 5;
   flex: 1;
   overflow-y: auto;
-  padding: 14px 14px 12px;
+  padding: 11px 14px 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2795,11 +3136,83 @@ button {
   position: relative;
   width: 262px;
   height: 262px;
-  margin: -4px 0 -8px;
+  margin: 10px 0 -12px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
+}
+
+/* Top Segmented Toggle Switch on Watch Screen: 语音界面 | 二维码 */
+.watch-top-seg {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: 140px;
+  height: 27px;
+  padding: 2px;
+  border-radius: 99px;
+  background: rgba(238, 246, 253, 0.94);
+  border: 1px solid rgba(28, 188, 208, 0.38);
+  box-shadow:
+    0 4px 12px rgba(44, 136, 220, 0.11),
+    inset 0 1px 2px rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.watch-seg-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  height: calc(100% - 4px);
+  border-radius: 99px;
+  background: linear-gradient(135deg, #1cbcd0 0%, #2c88dc 100%);
+  box-shadow: 0 2px 7px rgba(28, 188, 208, 0.34);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.watch-top-seg[data-active-tab="qr"] .watch-seg-thumb {
+  transform: translateX(100%);
+}
+
+.watch-seg-btn {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 0 6px;
+  border: none;
+  border-radius: 99px;
+  background: transparent;
+  color: #486581;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.watch-seg-btn:hover:not(.active) {
+  color: var(--hm-blue);
+}
+
+.watch-seg-btn.active {
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(15, 39, 68, 0.18);
 }
 
 .watch-orb-stage canvas {
@@ -3249,4 +3662,692 @@ button {
 .toast-msg.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+
+/* ==========================================================================
+   Patient Chip Rail (输入框上方 · 人物胶囊横向滚动选择)
+   ========================================================================== */
+/* Wrapper: scrollable chips + pinned 管理/完成 text button on the right */
+.pt-rail-wrap {
+  display: flex;
+  align-items: center;
+  margin: -3px -14px 4px 0;
+  min-width: 0;
+}
+
+.pt-chip-rail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: -14px;
+  padding: 3px 10px 6px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  transition: opacity 0.2s ease;
+}
+
+.pt-chip-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.pt-chip {
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 99px;
+  background: #f4f9fe;
+  border: 1.2px solid rgba(44, 136, 220, 0.18);
+  color: var(--hm-text-sub);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.pt-chip:hover:not(.active) {
+  background: #eaf5fe;
+  border-color: rgba(28, 188, 208, 0.45);
+  color: var(--hm-text);
+}
+
+.pt-chip:active {
+  transform: scale(0.96);
+}
+
+.pt-chip .pt-chip-name {
+  font-weight: 800;
+  color: var(--hm-text);
+}
+
+.pt-chip .pt-chip-divider {
+  width: 1px;
+  height: 10px;
+  background: rgba(44, 136, 220, 0.26);
+  flex-shrink: 0;
+}
+
+.pt-chip .pt-chip-meta {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.pt-chip .pt-chip-self {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: rgba(28, 188, 208, 0.14);
+  color: #0d8a9c;
+  margin-left: -2px;
+}
+
+/* Active Chip: gradient fill & expanded identity (姓名 | 性别 | 年龄) */
+.pt-chip.active {
+  background: var(--hm-gradient);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 10px rgba(28, 188, 208, 0.28);
+  cursor: default;
+}
+
+.pt-chip.active .pt-chip-name {
+  color: #ffffff;
+}
+
+.pt-chip.active .pt-chip-divider {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.pt-chip.active .pt-chip-self {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+/* Trailing manage chip (opens profile page) */
+.pt-chip.pt-chip-manage {
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(44, 136, 220, 0.34);
+  color: var(--hm-blue);
+  gap: 4px;
+  padding: 0 10px;
+}
+
+.pt-chip.pt-chip-manage svg {
+  flex-shrink: 0;
+}
+
+.pt-chip.pt-chip-manage:hover {
+  background: rgba(44, 136, 220, 0.06);
+  border-color: var(--hm-cyan);
+  color: var(--hm-blue);
+}
+
+/* Active chip is tappable again -> profile detail; › affordance */
+.pt-chip.active {
+  cursor: default;
+}
+
+.pt-chip.active:hover {
+  box-shadow: 0 4px 14px rgba(28, 188, 208, 0.38);
+}
+
+.pt-chip .pt-chip-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
+  margin-left: -1px;
+  flex-shrink: 0;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.pt-chip.active:hover .pt-chip-more {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(1px);
+}
+
+/* Long-press feedback */
+.pt-chip.is-pressing {
+  transform: scale(0.94);
+  box-shadow: 0 0 0 3px rgba(28, 188, 208, 0.2);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Trailing round add chip */
+.pt-chip.pt-chip-add {
+  width: 28px;
+  padding: 0;
+  justify-content: center;
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(44, 136, 220, 0.38);
+  color: var(--hm-blue);
+}
+
+.pt-chip.pt-chip-add:hover {
+  background: rgba(44, 136, 220, 0.06);
+  border-color: var(--hm-cyan);
+  color: var(--hm-blue);
+}
+
+.pt-rail-manage {
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  height: 28px;
+  padding: 0 14px 0 12px;
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--hm-blue);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+.pt-rail-manage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 16px;
+  transform: translateY(-50%);
+  background: rgba(44, 136, 220, 0.22);
+}
+
+.pt-rail-manage svg {
+  flex-shrink: 0;
+}
+
+.pt-rail-manage:hover {
+  color: var(--hm-cyan);
+}
+
+.pt-rail-manage:active {
+  opacity: 0.7;
+}
+
+.chat-simple-dock.is-speaking .pt-rail-manage {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Lock switching while watch voice is streaming */
+.chat-simple-dock.is-speaking .pt-chip-rail {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ---- Chip Rail v3: 详情 text button + manage/delete mode ---- */
+.pt-chip.active {
+  padding-right: 11px;
+  cursor: default;
+}
+
+.pt-chip .pt-chip-text-btn {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: opacity 0.15s ease;
+}
+
+.pt-chip.active .pt-chip-text-btn {
+  color: #ffffff;
+}
+
+.pt-chip.active .pt-chip-text-btn:hover {
+  opacity: 0.8;
+}
+
+/* Manage mode: × badge inside each deletable chip */
+.pt-chip.is-managing {
+  padding-right: 6px;
+  animation: chipManageWiggle 0.32s ease;
+}
+
+.pt-chip.is-managing:not(:has(.pt-chip-del)) {
+  padding-right: 11px;
+  opacity: 0.7;
+}
+
+@keyframes chipManageWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-1.5deg); }
+  70% { transform: rotate(1.5deg); }
+}
+
+.pt-chip .pt-chip-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.pt-chip .pt-chip-del:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.pt-chip.active .pt-chip-del {
+  background: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
+}
+
+/* In-place delete confirm chip */
+.pt-chip.is-del-confirm {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.pt-chip.is-del-confirm .pt-chip-name {
+  color: #dc2626;
+}
+
+.pt-chip.is-del-confirm .pt-chip-divider {
+  background: rgba(239, 68, 68, 0.35);
+}
+
+.pt-chip.is-del-confirm .pt-chip-text-btn {
+  color: #dc2626;
+}
+
+.pt-chip.is-del-confirm:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.pt-chip.is-del-confirm:hover .pt-chip-name,
+.pt-chip.is-del-confirm:hover .pt-chip-text-btn {
+  color: #ffffff;
+}
+
+/* 完成 (exit manage) */
+.pt-chip.pt-chip-done {
+  background: var(--hm-text);
+  border-color: transparent;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.pt-chip.pt-chip-done:hover {
+  background: #0c1f33;
+  color: #ffffff;
+}
+
+/* Profile detail page: text-style delete */
+.btn-profile-delete {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 6px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 750;
+  color: #dc2626;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-profile-delete:hover {
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.btn-profile-delete.is-confirming {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   INTERACTIVE COACHMARK & PULSE-RING TUTORIAL ("圈圈指令") FOR STEPS 3 & 4
+   ========================================================================== */
+.header-right-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guide-trigger-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, rgba(28, 188, 208, 0.14) 0%, rgba(44, 136, 220, 0.16) 100%);
+  border: 1px solid rgba(28, 188, 208, 0.45);
+  color: var(--hm-blue);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guide-trigger-btn:hover,
+.guide-trigger-btn.is-active {
+  background: var(--hm-gradient);
+  border-color: transparent;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(28, 188, 208, 0.34);
+}
+
+.guide-trigger-btn:hover span,
+.guide-trigger-btn.is-active span {
+  color: #ffffff !important;
+}
+
+.guide-btn-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1cbcd0;
+  box-shadow: 0 0 0 3px rgba(28, 188, 208, 0.28);
+  animation: guideDotPulse 1.8s ease-in-out infinite;
+}
+
+.guide-trigger-btn:hover .guide-btn-pulse,
+.guide-trigger-btn.is-active .guide-btn-pulse {
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+}
+
+@keyframes guideDotPulse {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+}
+
+.coachmark-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.coachmark-layer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Spotlight Target Frame + Concentric Pulse Ring ("圈圈指令" Strictly Inside Phone Screen) */
+.coachmark-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 36px;
+  border-radius: 18px;
+  border: 2px solid #1cbcd0;
+  background: rgba(28, 188, 208, 0.05);
+  box-shadow:
+    0 0 0 999px rgba(15, 35, 58, 0.36),
+    0 0 0 4px rgba(28, 188, 208, 0.25),
+    0 0 18px rgba(28, 188, 208, 0.52);
+  pointer-events: none;
+  animation: coachRingBreathe 1.8s ease-in-out infinite;
+}
+
+.coachmark-layer.is-animated .coachmark-ring {
+  transition:
+    top 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.24s ease;
+}
+
+@keyframes coachRingBreathe {
+  0%, 100% {
+    border-color: #1cbcd0;
+    box-shadow:
+      0 0 0 999px rgba(15, 35, 58, 0.36),
+      0 0 0 4px rgba(28, 188, 208, 0.22),
+      0 0 16px rgba(28, 188, 208, 0.45);
+  }
+  50% {
+    border-color: #ffffff;
+    box-shadow:
+      0 0 0 999px rgba(15, 35, 58, 0.36),
+      0 0 0 7px rgba(28, 188, 208, 0.34),
+      0 0 24px rgba(44, 136, 220, 0.6);
+  }
+}
+
+/* Floating Instruction Card (Mobile H5 Proportions Inside .phone-screen) */
+.coachmark-card {
+  position: absolute;
+  top: 0;
+  left: 14px;
+  width: 312px;
+  max-width: calc(100% - 24px);
+  padding: 12px 13px 11px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1.5px solid rgba(28, 188, 208, 0.52);
+  box-shadow:
+    0 12px 30px rgba(15, 35, 58, 0.24),
+    0 0 0 3px rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.coachmark-layer.is-animated .coachmark-card {
+  transition:
+    top 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.coachmark-arrow {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: #ffffff;
+  border: 1.5px solid rgba(28, 188, 208, 0.52);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.coachmark-card[data-place="top"] .coachmark-arrow {
+  bottom: -7px;
+  border-top: none;
+  border-left: none;
+}
+
+.coachmark-card[data-place="bottom"] .coachmark-arrow {
+  top: -7px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.coachmark-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.coachmark-scene-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgba(28, 188, 208, 0.14), rgba(44, 136, 220, 0.14));
+  color: var(--hm-blue);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.coachmark-step-counter {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.coachmark-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--hm-text);
+  margin-bottom: 5px;
+  line-height: 1.35;
+}
+
+.coachmark-desc {
+  margin: 0 0 8px;
+  font-size: 11.8px;
+  line-height: 1.52;
+  color: #475569;
+}
+
+.coachmark-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  background: #f2f9fd;
+  border: 1px dashed rgba(28, 188, 208, 0.42);
+  font-size: 11px;
+  font-weight: 700;
+  color: #0e7490;
+  margin-bottom: 10px;
+}
+
+.hint-ring-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1cbcd0;
+  box-shadow: 0 0 0 3px rgba(28, 188, 208, 0.25);
+  flex-shrink: 0;
+}
+
+.coachmark-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.coachmark-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.coach-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.coach-dot.active {
+  width: 16px;
+  background: var(--hm-gradient);
+}
+
+.coachmark-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.coach-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 27px;
+  padding: 0 11px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.coach-btn.ghost {
+  background: transparent;
+  color: #64748b;
+  padding: 0 7px;
+}
+
+.coach-btn.ghost:hover {
+  color: var(--hm-text);
+  background: #f1f5f9;
+}
+
+.coach-btn.sub {
+  background: #f1f6fb;
+  color: #334e68;
+  border: 1px solid #d8e6f3;
+}
+
+.coach-btn.sub:hover {
+  background: #e3effa;
+  color: var(--hm-blue);
+}
+
+.coach-btn.primary {
+  background: var(--hm-gradient);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(28, 188, 208, 0.28);
+}
+
+.coach-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(28, 188, 208, 0.38);
 }

@@ -31,7 +31,15 @@
       "昨晚胸口有点发闷，阿司匹林和氨氯地平还要继续吃吗？",
       "刚拿到的生化报告单里血脂和尿酸偏高，平时饮食要注意什么？"
     ],
-    utteranceCursor: 0
+    utteranceCursor: 0,
+    seenTours: {
+      step3_userinfo: false,
+      step4_chat: false,
+      step4_profile: false
+    },
+    activeTourKey: null,
+    activeTourIndex: 0,
+    tourTimer: null
   };
 
   const els = {};
@@ -46,6 +54,7 @@
     els.orbSpecStage = document.getElementById("orb-spec-stage");
 
     // Phone Views & Topbar
+    els.phoneScreen = document.getElementById("phone-screen");
     els.phoneClock = document.getElementById("phone-clock");
     els.h5Topbar = document.getElementById("h5-topbar");
     els.topbarBackBtn = document.getElementById("btn-topbar-back");
@@ -54,6 +63,7 @@
     els.topbarPtText = document.getElementById("topbar-pt-text");
     els.topbarPageTitle = document.getElementById("topbar-page-title");
     els.btnTopbarAddPerson = document.getElementById("btn-topbar-add-person");
+    els.btnTopbarClearForm = document.getElementById("btn-topbar-clear-form");
     els.btnTopbarSaveProfile = document.getElementById("btn-topbar-save-profile");
     els.phoneViews = {
       1: document.getElementById("phone-view-1"),
@@ -102,6 +112,18 @@
     els.fullPresetList = document.getElementById("full-preset-list");
     els.topbarBrandFixed = document.getElementById("topbar-brand-fixed");
     els.h5OrbTouch = document.getElementById("h5-orb-touch");
+    els.chatHistoryBar = document.getElementById("chat-history-bar");
+    els.historyBarLeftTrigger = document.getElementById("history-bar-left-trigger");
+    els.historyBarPerson = document.getElementById("history-bar-person");
+    els.historyBarGender = document.getElementById("history-bar-gender");
+    els.historyBarAge = document.getElementById("history-bar-age");
+    els.btnHistoryClear = document.getElementById("btn-history-clear");
+    els.btnHistoryClearLabel = document.getElementById("btn-history-clear-label");
+    els.historyConfirmInline = document.getElementById("history-confirm-inline");
+    els.btnHistoryConfirmYes = document.getElementById("btn-history-confirm-yes");
+    els.btnHistoryConfirmNo = document.getElementById("btn-history-confirm-no");
+    els.ptChipRail = document.getElementById("pt-chip-rail");
+    els.btnPtRailManage = document.getElementById("btn-pt-rail-manage");
     els.chatList = document.getElementById("cyber-chat-list");
     els.chatBottomDock = document.getElementById("chat-bottom-dock");
     els.btnChatMic = document.getElementById("btn-chat-mic") || document.getElementById("btn-h5-voice-hold");
@@ -125,8 +147,11 @@
     els.btnPtCreate = document.getElementById("btn-pt-create");
     els.btnPtDelete = document.getElementById("btn-pt-delete");
 
-    // Step 3: Main User Onboarding Form (User's OWN Profile Only)
+    // Step 3: Unified User Info & Person Dropdown Form
     els.selfOnboardingForm = document.getElementById("self-onboarding-form");
+    els.sPtNameCombo = document.getElementById("s-pt-name-combo");
+    els.btnSPtDropdown = document.getElementById("btn-s-pt-dropdown");
+    els.sPtNameMenu = document.getElementById("s-pt-name-menu");
     els.sPtName = document.getElementById("s-pt-name");
     els.sPtGender = document.getElementById("s-pt-gender");
     els.selfGenderSegBtns = document.querySelectorAll(".gender-seg-btn[data-self-gender]");
@@ -154,6 +179,8 @@
 
     // Smartwatch Controls
     els.watchCrownBtn = document.getElementById("watch-crown-btn");
+    els.watchTopSeg = document.getElementById("watch-top-seg");
+    els.watchSegBtns = document.querySelectorAll("#watch-top-seg .watch-seg-btn[data-watch-tab]");
     els.btnWatchHold = document.getElementById("btn-watch-hold");
     els.watchHoldLabel = document.getElementById("watch-hold-label");
     els.watchSpeechBubble = document.getElementById("watch-speech-bubble");
@@ -169,8 +196,22 @@
     els.btnSpecAutoType = document.getElementById("btn-spec-auto-type");
     els.btnBackToFlow = document.getElementById("btn-back-to-flow");
 
-    // Toast
+    // Toast & Interactive Coachmark Layer
     els.toast = document.getElementById("toast-msg");
+    els.btnReplayGuide = document.getElementById("btn-replay-guide");
+    els.coachmarkLayer = document.getElementById("coachmark-layer");
+    els.coachmarkRing = document.getElementById("coachmark-ring");
+    els.coachmarkCard = document.getElementById("coachmark-card");
+    els.coachmarkArrow = document.getElementById("coachmark-arrow");
+    els.coachmarkSceneTag = document.getElementById("coachmark-scene-tag");
+    els.coachmarkStepCounter = document.getElementById("coachmark-step-counter");
+    els.coachmarkTitle = document.getElementById("coachmark-title");
+    els.coachmarkDesc = document.getElementById("coachmark-desc");
+    els.coachmarkHintText = document.getElementById("coachmark-hint-text");
+    els.coachmarkDots = document.getElementById("coachmark-dots");
+    els.btnCoachSkip = document.getElementById("btn-coach-skip");
+    els.btnCoachPrev = document.getElementById("btn-coach-prev");
+    els.btnCoachNext = document.getElementById("btn-coach-next");
   }
 
   /**
@@ -302,14 +343,19 @@
     }
 
     if (stepNum === 3) {
-      // Step 3 User Info Page: Keep navbar specification consistent with Chat Interface
+      // Step 3 User Info Page: Right side shows "清空" (Clear Form); "进入问诊" at bottom saves & enters chat
       if (els.topbarBrandFixed) els.topbarBrandFixed.style.display = "inline-flex";
       if (els.h5OrbTouch) els.h5OrbTouch.style.display = "none";
       if (els.topbarPageTitle) els.topbarPageTitle.style.display = "none";
       if (els.topbarPtBtn) els.topbarPtBtn.style.display = "none";
       if (els.btnTopbarAddPerson) els.btnTopbarAddPerson.style.display = "none";
-      if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "inline-flex";
+      if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "none";
+      if (els.btnTopbarClearForm) els.btnTopbarClearForm.style.display = "inline-flex";
+      if (els.chatHistoryBar) els.chatHistoryBar.style.display = "none";
+      if (els.btnHistoryClear) els.btnHistoryClear.style.display = "none";
+      if (els.h5Topbar) els.h5Topbar.classList.remove("has-context-bar");
     } else if (stepNum === 4) {
+      if (els.btnTopbarClearForm) els.btnTopbarClearForm.style.display = "none";
       switchH5SubPage(state.h5SubPage || "chat");
     }
 
@@ -325,6 +371,7 @@
       const view = els.watchViews[k];
       if (view) view.classList.toggle("active", Number(k) === targetWatchView);
     });
+    syncWatchTopSeg(targetWatchView === 1 ? "qr" : "voice", targetWatchView !== 2);
 
     // Update Watch Bottom Capsule Text ("登陆中" on Step 2, "点击开始/点击结束" on Steps 3 & 4)
     if (els.watchHoldLabel) {
@@ -351,13 +398,55 @@
     // When entering Step 3 (Main User Onboarding Guide), populate the user's OWN profile
     if (stepNum === 3) {
       populateSelfOnboardingForm();
+      maybeAutoStartTour("step3_userinfo");
     } else if (stepNum === 4) {
       renderPatientUI();
+    } else {
+      stopCoachmarkTour(false);
     }
 
     requestAnimationFrame(() => {
       orbManager.resizeAll();
     });
+  }
+
+  /**
+   * Sync the top segmented toggle state on the watch screen ('voice' | 'qr')
+   */
+  function syncWatchTopSeg(activeTab, visible = true) {
+    if (!els.watchTopSeg) return;
+    els.watchTopSeg.style.display = visible ? "inline-grid" : "none";
+    const tab = activeTab === "qr" ? "qr" : "voice";
+    els.watchTopSeg.setAttribute("data-active-tab", tab);
+    if (els.watchSegBtns) {
+      els.watchSegBtns.forEach((btn) => {
+        const isMatch = btn.getAttribute("data-watch-tab") === tab;
+        btn.classList.toggle("active", isMatch);
+        btn.setAttribute("aria-selected", isMatch ? "true" : "false");
+      });
+    }
+  }
+
+  /**
+   * Switch ONLY the smartwatch screen between 'voice' (#watch-view-3) and 'qr' (#watch-view-1),
+   * keeping the phone H5 consultation interface unchanged.
+   */
+  function switchWatchScreenTab(targetTab) {
+    const tab = targetTab === "qr" ? "qr" : "voice";
+    if (tab === "qr" && state.isHoldingVoice) {
+      setGlobalOrbState("idle");
+    }
+    const targetViewNum = tab === "qr" ? 1 : 3;
+    Object.keys(els.watchViews).forEach((k) => {
+      const view = els.watchViews[k];
+      if (view) view.classList.toggle("active", Number(k) === targetViewNum);
+    });
+    syncWatchTopSeg(tab, true);
+    if (tab === "voice") {
+      requestAnimationFrame(() => {
+        orbManager.resizeAll();
+      });
+    }
   }
 
   /**
@@ -415,9 +504,12 @@
         : `${activePt.name}（${activePt.gender} · ${activePt.age}岁）`;
     }
 
-    // 2b. Render Custom Dropdown Menu Items (Distinguishing User's Self & Presets)
+    // 2b. Render Custom Dropdown Menu Items (Distinguishing User's Self & Presets + Per-Person History Count)
     if (els.menuSelfGroup) {
       const isSelfActive = activePt.id === selfPt.id;
+      const selfMsgs = store.getChats(selfPt.id);
+      const selfQaCount = selfMsgs.filter((m) => m.source !== "system").length;
+      const selfHistLabel = selfQaCount > 0 ? `历史 ${selfMsgs.length} 条` : "已清空";
       els.menuSelfGroup.innerHTML = `
         <div class="custom-dropdown-item self ${isSelfActive ? "active" : ""}" data-pt-id="${escapeHtml(selfPt.id)}">
           <div class="item-left">
@@ -427,7 +519,7 @@
             <span class="item-meta">${escapeHtml(selfPt.gender)} · ${selfPt.age}岁</span>
           </div>
           <div class="item-right">
-            <span class="item-self-tag">主档案</span>
+            <span class="item-self-tag">${selfHistLabel}</span>
           </div>
         </div>
       `;
@@ -441,6 +533,9 @@
         els.menuPresetGroup.innerHTML = otherPts
           .map((pt) => {
             const isActive = activePt.id === pt.id;
+            const ptMsgs = store.getChats(pt.id);
+            const ptQaCount = ptMsgs.filter((m) => m.source !== "system").length;
+            const ptHistLabel = ptQaCount > 0 ? `${ptMsgs.length}条记录` : "已清空";
             return `
               <div class="custom-dropdown-item preset ${isActive ? "active" : ""}" data-pt-id="${escapeHtml(pt.id)}">
                 <div class="item-left">
@@ -449,6 +544,7 @@
                   <span class="item-meta">${escapeHtml(pt.gender)} · ${pt.age}岁</span>
                 </div>
                 <div class="item-right">
+                  <span class="item-self-tag">${ptHistLabel}</span>
                   <button type="button" class="btn-item-delete" data-del-pt="${escapeHtml(pt.id)}" title="删除此档案">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3 6 5 6 21 6"></polyline>
@@ -475,6 +571,9 @@
         .join("");
     }
 
+    // 2c. Render Bottom Patient Chip Rail (above chat input)
+    renderPtChipRail(patients, activePt, selfPt);
+
     // 3. Keep Step 3 Self Onboarding Form synchronized with selfPt
     populateSelfOnboardingForm();
 
@@ -485,58 +584,247 @@
   }
 
   /**
-   * Populate Step 3 Main User Onboarding Form (User's OWN info only: selfPt)
+   * Bottom Patient Chip Rail: one capsule per person, horizontally scrollable.
+   * Active chip expands to 姓名 | 性别 | 年龄; trailing dashed chip opens profile management.
    */
-  function populateSelfOnboardingForm() {
-    const patients = store.getAll();
-    const selfPt = patients.find((p) => p.id === "pt_chenmin") || patients[0];
-    if (!selfPt) return;
+  function renderPtChipRail(patients, activePt, selfPt) {
+    if (!els.ptChipRail) return;
+    const prevScroll = els.ptChipRail.scrollLeft;
+    const ordered = selfPt ? [selfPt, ...patients.filter((p) => p.id !== selfPt.id)] : patients;
 
-    if (els.sPtName) els.sPtName.value = selfPt.name || "";
-    if (els.sPtGender) els.sPtGender.value = selfPt.gender || "女";
-    if (els.selfGenderSegBtns) {
-      els.selfGenderSegBtns.forEach((btn) => {
-        btn.classList.toggle("active", btn.getAttribute("data-self-gender") === (selfPt.gender || "女"));
-      });
+    const manage = !!state.railManage;
+    const chips = ordered
+      .map((pt) => {
+        const isActive = activePt && pt.id === activePt.id;
+        const isSelf = selfPt && pt.id === selfPt.id;
+        const id = escapeHtml(pt.id);
+        const name = escapeHtml(pt.name);
+
+        if (manage && state.railDelConfirm === pt.id) {
+          return `<button type="button" class="pt-chip is-del-confirm" data-rail-del="${id}" title="再次点击确认删除"><span class="pt-chip-name">删除「${name}」</span><span class="pt-chip-divider"></span><span class="pt-chip-text-btn">确认</span></button>`;
+        }
+
+        const selfBadge = isSelf ? '<span class="pt-chip-self">本人</span>' : "";
+        const detail = "";
+        const del = manage && !isSelf
+          ? `<span class="pt-chip-del" data-rail-del="${id}" role="button" aria-label="删除${name}" title="删除此人物"><svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></span>`
+          : "";
+        const title = manage ? (isSelf ? "本人档案不可删除" : "点击 × 删除") : isActive ? "当前问诊人物" : `切换到「${pt.name}」`;
+        return `<button type="button" class="pt-chip ${isActive ? "active" : ""} ${manage ? "is-managing" : ""}" role="tab" aria-selected="${isActive ? "true" : "false"}" title="${escapeHtml(title)}" data-rail-pt="${id}"><span class="pt-chip-name">${name}</span>${selfBadge}${detail}${del}</button>`;
+      })
+      .join("");
+
+    els.ptChipRail.classList.toggle("is-managing", manage);
+
+    els.ptChipRail.innerHTML = chips;
+    els.ptChipRail.style.scrollBehavior = "auto";
+    els.ptChipRail.scrollLeft = prevScroll;
+    els.ptChipRail.style.scrollBehavior = "";
+  }
+
+  function centerActiveRailChip() {
+    if (!els.ptChipRail) return;
+    const chip = els.ptChipRail.querySelector(".pt-chip.active");
+    if (!chip) return;
+    const rail = els.ptChipRail;
+    const target = chip.offsetLeft - (rail.clientWidth - chip.offsetWidth) / 2;
+    rail.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  }
+
+  function switchActivePatientFromRail(ptId) {
+    const current = store.getActive();
+    if (current && current.id === ptId) return;
+    closeHistoryClearConfirm();
+    state.editingMode = "edit";
+    const pt = store.setActive(ptId);
+    if (!pt) return;
+    renderPatientUI();
+    renderChatMessages();
+    requestAnimationFrame(centerActiveRailChip);
+    if (!state.railHintShown) {
+      state.railHintShown = true;
+      showToast(`已切换至「${pt.name}」· 点右侧「管理」查看档案`);
     }
-    if (els.sPtAge) els.sPtAge.value = selfPt.age ?? "";
-    if (els.sPtWeight) els.sPtWeight.value = selfPt.weight ?? "";
-    if (els.sPtHeight) els.sPtHeight.value = selfPt.height ?? "";
-    if (els.sPtHistory) els.sPtHistory.value = selfPt.history || "";
-    if (els.sPtMeds) els.sPtMeds.value = (selfPt.medications || []).join("\n");
-    if (els.sPtExtra) els.sPtExtra.value = selfPt.extraInfo || "";
+  }
+
+  function resetProfileDeleteBtn() {
+    clearTimeout(state.profileDelTimer);
+    if (!els.btnPtDelete) return;
+    els.btnPtDelete.classList.remove("is-confirming");
+    els.btnPtDelete.textContent = "删除此人物档案";
+  }
+
+  function setRailManage(on) {
+    state.railManage = !!on;
+    state.railDelConfirm = null;
+    clearTimeout(state.railDelTimer);
+    renderPatientUI();
+    if (on) showToast("点胶囊上的 × 删除人物，本人档案不可删除");
+  }
+
+  function requestRailDelete(ptId) {
+    clearTimeout(state.railDelTimer);
+    if (state.railDelConfirm === ptId) {
+      state.railDelConfirm = null;
+      handleDeletePatientById(ptId);
+      renderChatMessages();
+      return;
+    }
+    state.railDelConfirm = ptId;
+    renderPatientUI();
+    state.railDelTimer = setTimeout(() => {
+      state.railDelConfirm = null;
+      renderPatientUI();
+    }, 3000);
+  }
+
+  function openPatientDetailFromRail(ptId) {
+    closeHistoryClearConfirm();
+    const pt = store.setActive(ptId);
+    if (!pt) return;
+    state.railHintShown = true;
+    if (state.currentStep !== 4) switchStep(4);
+    switchH5SubPage("profile_edit", { mode: "edit", pt });
+    renderChatMessages();
   }
 
   /**
-   * Save Step 3 Main User Onboarding Form -> Enter Step 4 Chat Interface
+   * Populate Step 3 User Info Form (Supports switching/editing/deleting any person via Name dropdown)
+   */
+  function populateSelfOnboardingForm(targetPt) {
+    const patients = store.getAll();
+    const pt = targetPt || store.getActive() || patients[0];
+    if (!pt) return;
+
+    state.step3EditingId = pt.id;
+    if (els.sPtName) els.sPtName.value = pt.name || "";
+    if (els.sPtGender) els.sPtGender.value = pt.gender || "女";
+    if (els.selfGenderSegBtns) {
+      els.selfGenderSegBtns.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-self-gender") === (pt.gender || "女"));
+      });
+    }
+    if (els.sPtAge) els.sPtAge.value = pt.age ?? "";
+    if (els.sPtWeight) els.sPtWeight.value = pt.weight ?? "";
+    if (els.sPtHeight) els.sPtHeight.value = pt.height ?? "";
+    if (els.sPtHistory) els.sPtHistory.value = pt.history || "";
+    if (els.sPtMeds) els.sPtMeds.value = (pt.medications || []).join("\n");
+    if (els.sPtExtra) els.sPtExtra.value = pt.extraInfo || "";
+    renderStep3NameDropdown();
+  }
+
+  function renderStep3NameDropdown() {
+    if (!els.sPtNameMenu) return;
+    const patients = store.getAll();
+    const selfPt = patients.find((p) => p.id === "pt_chenmin") || patients[0];
+    const ordered = selfPt ? [selfPt, ...patients.filter((p) => p.id !== selfPt.id)] : patients;
+
+    els.sPtNameMenu.innerHTML = ordered
+      .map((pt) => {
+        const isActive = state.step3EditingId === pt.id;
+        const isSelf = selfPt && pt.id === selfPt.id;
+        const isConfirmDel = state.s3DelConfirmId === pt.id;
+        const id = escapeHtml(pt.id);
+        const name = escapeHtml(pt.name);
+        const meta = `${escapeHtml(pt.gender || "女")} · ${pt.age ?? "--"}岁`;
+        const selfTag = isSelf ? '<span class="name-combo-self-tag">本人</span>' : "";
+        const delText = isConfirmDel ? "确认?" : "删除";
+        return `
+          <div class="name-combo-item ${isActive ? "active" : ""}" role="option" aria-selected="${isActive ? "true" : "false"}">
+            <button type="button" class="name-combo-select" data-s3-select="${id}" title="选择「${name}」">
+              <span class="name-combo-pt-name">${name}</span>
+              ${selfTag}
+              <span class="name-combo-pt-meta">${meta}</span>
+            </button>
+            <div class="name-combo-actions">
+              <button type="button" class="name-combo-act-btn edit" data-s3-edit="${id}" title="编辑「${name}」">编辑</button>
+              <button type="button" class="name-combo-act-btn del ${isConfirmDel ? "is-confirm" : ""}" data-s3-del="${id}" title="删除「${name}」">${delText}</button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  function toggleStep3NameDropdown(forceState) {
+    if (!els.sPtNameCombo) return;
+    const isOpen =
+      typeof forceState === "boolean"
+        ? forceState
+        : !els.sPtNameCombo.classList.contains("open");
+    if (!isOpen) {
+      state.s3DelConfirmId = null;
+      clearTimeout(state.s3DelTimer);
+    } else {
+      renderStep3NameDropdown();
+    }
+    els.sPtNameCombo.classList.toggle("open", isOpen);
+  }
+
+  function handleClearStep3Form() {
+    state.step3EditingId = null;
+    toggleStep3NameDropdown(false);
+    if (els.sPtName) els.sPtName.value = "";
+    if (els.sPtGender) els.sPtGender.value = "女";
+    if (els.selfGenderSegBtns) {
+      els.selfGenderSegBtns.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-self-gender") === "女");
+      });
+    }
+    if (els.sPtAge) els.sPtAge.value = "";
+    if (els.sPtWeight) els.sPtWeight.value = "";
+    if (els.sPtHeight) els.sPtHeight.value = "";
+    if (els.sPtHistory) els.sPtHistory.value = "";
+    if (els.sPtMeds) els.sPtMeds.value = "";
+    if (els.sPtExtra) els.sPtExtra.value = "";
+    renderStep3NameDropdown();
+    if (els.sPtName) els.sPtName.focus();
+    showToast("已清空当前信息 · 填写后点「进入问诊」自动保存");
+  }
+
+  /**
+   * Save Step 3 User Info Form -> Enter Step 4 Chat Interface ("进入问诊" saves & enters chat)
    */
   function handleSaveSelfOnboarding(e) {
     e.preventDefault();
     const patients = store.getAll();
-    const selfPt = patients.find((p) => p.id === "pt_chenmin") || patients[0];
-    if (!selfPt) return;
+    const fallbackPt = store.getActive() || patients[0];
 
-    const payload = {
-      name: els.sPtName ? els.sPtName.value.trim() : selfPt.name,
-      gender: els.sPtGender ? els.sPtGender.value : selfPt.gender,
-      age: Number(els.sPtAge ? els.sPtAge.value : selfPt.age) || 51,
-      weight: Number(els.sPtWeight ? els.sPtWeight.value : selfPt.weight) || 59,
-      height: Number(els.sPtHeight ? els.sPtHeight.value : selfPt.height) || 158,
-      history: els.sPtHistory ? els.sPtHistory.value.trim() : selfPt.history,
-      medications: els.sPtMeds ? els.sPtMeds.value : selfPt.medications,
-      extraInfo: els.sPtExtra ? els.sPtExtra.value.trim() : selfPt.extraInfo
-    };
-
-    if (!payload.name) {
-      showToast("请输入您的姓名");
+    const nameVal = els.sPtName ? els.sPtName.value.trim() : "";
+    if (!nameVal) {
+      showToast("请输入或选择姓名");
+      if (els.sPtName) els.sPtName.focus();
       return;
     }
 
-    store.updatePatient(selfPt.id, payload);
-    store.setActive(selfPt.id);
+    const payload = {
+      name: nameVal,
+      gender: els.sPtGender ? els.sPtGender.value : "女",
+      age: Number(els.sPtAge ? els.sPtAge.value : 0) || (fallbackPt ? fallbackPt.age : 50),
+      weight: Number(els.sPtWeight ? els.sPtWeight.value : 0) || (fallbackPt ? fallbackPt.weight : 60),
+      height: Number(els.sPtHeight ? els.sPtHeight.value : 0) || (fallbackPt ? fallbackPt.height : 165),
+      history: els.sPtHistory ? els.sPtHistory.value.trim() : "",
+      medications: els.sPtMeds ? els.sPtMeds.value : [],
+      extraInfo: els.sPtExtra ? els.sPtExtra.value.trim() : ""
+    };
+
+    const existing = state.step3EditingId
+      ? patients.find((p) => p.id === state.step3EditingId)
+      : null;
+
+    if (existing) {
+      store.updatePatient(existing.id, payload);
+      store.setActive(existing.id);
+    } else {
+      const created = store.createPatient(payload);
+      state.step3EditingId = created.id;
+      store.setActive(created.id);
+    }
+
+    toggleStep3NameDropdown(false);
     renderPatientUI();
     renderChatMessages();
-    showToast(`已保存本人信息「${payload.name}」· 进入问诊`);
+    showToast(`已保存「${payload.name}」档案并进入问诊`);
     switchStep(4);
     switchH5SubPage("chat");
   }
@@ -578,7 +866,8 @@
           : "自定义档案";
       }
       if (els.btnPtDelete) {
-        els.btnPtDelete.style.display = "none";
+        els.btnPtDelete.style.display = isSelf ? "none" : "block";
+        resetProfileDeleteBtn();
       }
     } else {
       if (els.fPtId) els.fPtId.value = "";
@@ -615,6 +904,7 @@
     }
 
     state.h5SubPage = target;
+    closeHistoryClearConfirm();
 
     // 1. Toggle Subpage Visibility
     if (els.chatSubpage) {
@@ -631,7 +921,11 @@
       if (els.topbarPageTitle) els.topbarPageTitle.style.display = "none";
       if (els.topbarPtBtn) els.topbarPtBtn.style.display = "none";
       if (els.btnTopbarAddPerson) els.btnTopbarAddPerson.style.display = "none";
-      if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "inline-flex";
+      if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "none";
+      if (els.btnTopbarClearForm) els.btnTopbarClearForm.style.display = "inline-flex";
+      if (els.chatHistoryBar) els.chatHistoryBar.style.display = "none";
+      if (els.btnHistoryClear) els.btnHistoryClear.style.display = "none";
+      if (els.h5Topbar) els.h5Topbar.classList.remove("has-context-bar");
       return;
     }
 
@@ -645,6 +939,16 @@
       if (els.topbarPtBtn) els.topbarPtBtn.style.display = "inline-flex";
       if (els.btnTopbarAddPerson) els.btnTopbarAddPerson.style.display = "none";
       if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "none";
+      if (els.btnTopbarClearForm) els.btnTopbarClearForm.style.display = "none";
+
+      // Row 2: Unified Patient & Clear History Capsule Bar visible
+      if (els.chatHistoryBar) els.chatHistoryBar.style.display = "inline-flex";
+      if (els.btnHistoryClear) els.btnHistoryClear.style.display = "inline-flex";
+      if (els.h5Topbar) els.h5Topbar.classList.add("has-context-bar");
+      updateHistoryBar();
+      if (state.currentStep === 4) {
+        maybeAutoStartTour("step4_chat");
+      }
     } else if (target === "profile_edit") {
       const mode = (typeof options === "string" ? options : options?.mode) || "edit";
       const targetPt = (typeof options === "object" ? options?.pt : null) || store.getActive();
@@ -662,9 +966,18 @@
       if (els.topbarPtBtn) els.topbarPtBtn.style.display = "none";
       if (els.btnTopbarAddPerson) els.btnTopbarAddPerson.style.display = "none";
       if (els.btnTopbarSaveProfile) els.btnTopbarSaveProfile.style.display = "inline-flex";
+      if (els.btnTopbarClearForm) els.btnTopbarClearForm.style.display = "none";
+
+      // Hide Row 2 on profile edit page
+      if (els.chatHistoryBar) els.chatHistoryBar.style.display = "none";
+      if (els.btnHistoryClear) els.btnHistoryClear.style.display = "none";
+      if (els.h5Topbar) els.h5Topbar.classList.remove("has-context-bar");
 
       populatePatientForm(mode, targetPt);
       renderPatientUI();
+      if (state.currentStep === 4) {
+        maybeAutoStartTour("step4_profile");
+      }
     }
   }
 
@@ -728,20 +1041,34 @@
   }
 
   function handleDeletePatientById(targetId) {
-    if (!targetId) return;
+    if (!targetId) return false;
     const allPts = store.getAll();
     const targetPt = allPts.find((p) => p.id === targetId);
     const targetName = targetPt ? targetPt.name : "档案";
+    const selfPt = allPts.find((p) => p.id === "pt_chenmin");
+    if (selfPt && targetId === selfPt.id) {
+      showToast("本人档案不可删除");
+      return false;
+    }
+    const wasActive = store.getActive() && store.getActive().id === targetId;
 
     const res = store.deletePatient(targetId);
     if (!res.ok) {
       showToast(res.reason || "无法删除档案");
-      return;
+      return false;
     }
+    if (store.chats && store.chats[targetId]) {
+      delete store.chats[targetId];
+      store.saveChats();
+    }
+    if (wasActive && selfPt) store.setActive(selfPt.id);
+    state.railDelConfirm = null;
+    if (store.getAll().length <= 1) state.railManage = false;
     state.editingMode = "edit";
     renderPatientUI();
     renderChatMessages();
     showToast(`已删除「${targetName}」档案`);
+    return true;
   }
 
   function toggleCustomPtDropdown(forceOpen) {
@@ -762,10 +1089,97 @@
       .replace(/\n/g, "<br/>");
   }
 
+  /**
+   * Synchronize the Top Per-Patient History Micro-Bar & In-Place Clear Control
+   */
+  function updateHistoryBar() {
+    const activePt = store.getActive();
+    if (!activePt) return;
+
+    const messages = store.getChats(activePt.id);
+    const hasQaHistory = messages.some((m) => m.source !== "system") || messages.length > 1;
+
+    if (els.historyBarPerson) {
+      els.historyBarPerson.textContent = activePt.name || "";
+    }
+    if (els.historyBarGender) {
+      els.historyBarGender.textContent = activePt.gender || "女";
+    }
+    if (els.historyBarAge) {
+      els.historyBarAge.textContent = `${activePt.age ?? 50}岁`;
+    }
+
+    state.historyHasQa = hasQaHistory;
+    if (!hasQaHistory) {
+      closeHistoryClearConfirm();
+    } else if (!state.clearConfirmTimer) {
+      setClearCapsuleState("idle");
+    }
+  }
+
+  /**
+   * Clear Capsule visual states (same 78×29 capsule morphs in place):
+   *  - idle:       🗑 清空
+   *  - confirming: 确认清空 (red tint + countdown hairline, second tap executes)
+   *  - empty:      🗑 已清空 (dimmed, non-interactive)
+   */
+  function setClearCapsuleState(mode) {
+    const btn = els.btnHistoryClear;
+    if (!btn) return;
+    btn.classList.toggle("is-confirming", mode === "confirming");
+    btn.classList.toggle("is-empty", mode === "empty");
+    if (els.btnHistoryClearLabel) {
+      els.btnHistoryClearLabel.textContent =
+        mode === "confirming" ? "确认清空" : mode === "empty" ? "已清空" : "清空";
+    }
+    btn.title =
+      mode === "confirming"
+        ? "再次点击确认清空（点击其他区域取消）"
+        : mode === "empty"
+        ? "当前人物暂无可清空的历史问答"
+        : "清空当前人物的历史问答记录";
+  }
+
+  function handleClearCapsuleClick() {
+    const activePt = store.getActive();
+    if (!activePt) return;
+    if (state.clearConfirmTimer) {
+      handleConfirmClearHistory();
+      return;
+    }
+    if (!state.historyHasQa) {
+      showToast(`「${activePt.name}」暂无可清空的问答记录`);
+      return;
+    }
+    setClearCapsuleState("confirming");
+    clearTimeout(state.clearConfirmTimer);
+    state.clearConfirmTimer = setTimeout(() => {
+      closeHistoryClearConfirm();
+    }, 3800);
+  }
+
+  function closeHistoryClearConfirm() {
+    clearTimeout(state.clearConfirmTimer);
+    state.clearConfirmTimer = null;
+    setClearCapsuleState(state.historyHasQa === false ? "empty" : "idle");
+  }
+
+  function handleConfirmClearHistory() {
+    const activePt = store.getActive();
+    if (!activePt) return;
+    clearTimeout(state.clearConfirmTimer);
+    state.clearConfirmTimer = null;
+    store.clearChats(activePt.id);
+    renderChatMessages();
+    renderPatientUI();
+    showToast(`已清空「${activePt.name}」的历史问答记录`);
+  }
+
   function renderChatMessages() {
     if (!els.chatList) return;
     const activePt = store.getActive();
     const messages = store.getChats(activePt ? activePt.id : null);
+    updateHistoryBar();
 
     let html = messages
       .map((msg) => {
@@ -780,7 +1194,6 @@
                 <div class="cyber-bubble-content">${formatMessageHtml(msg.text)}</div>
                 <div class="cyber-msg-footer">
                   <span class="cyber-msg-time">${timeStr}</span>
-                  <button type="button" class="cyber-del-btn" data-del-msg="${escapeHtml(msg.id)}" title="删除此记录">×</button>
                 </div>
               </div>
             </div>
@@ -795,7 +1208,6 @@
                 <span class="ai-orb-mini-node"></span>
                 <span class="ai-header-title">AI 诊疗与用药分析</span>
                 <span class="cyber-msg-time" style="margin-left:auto;">${timeStr}</span>
-                <button type="button" class="cyber-del-btn" data-del-msg="${escapeHtml(msg.id)}" title="删除此记录">×</button>
               </div>
               <div class="cyber-bubble-content">${formatMessageHtml(msg.text)}</div>
             </div>
@@ -907,6 +1319,7 @@
         tags: aiReply.tags
       });
       renderChatMessages();
+      renderPatientUI();
     }, 520);
   }
 
@@ -1411,9 +1824,10 @@
       });
     }
 
-    // Chat List: Clicking message area dismisses soft keyboard
+    // Chat List: Clicking message area dismisses soft keyboard & in-place clear confirm
     if (els.chatList) {
       els.chatList.addEventListener("click", (e) => {
+        closeHistoryClearConfirm();
         const delBtn = e.target.closest("[data-del-msg]");
         if (delBtn) {
           const msgId = delBtn.getAttribute("data-del-msg");
@@ -1421,6 +1835,7 @@
           if (activePt && msgId) {
             store.deleteMessage(activePt.id, msgId);
             renderChatMessages();
+            renderPatientUI();
             showToast("已删除该条问诊记录");
           }
           return;
@@ -1428,6 +1843,107 @@
         if (state.inputMode === "keyboard") {
           setInputDockMode("orb");
         }
+      });
+    }
+
+    // Bottom Patient Chip Rail:
+    //   - tap inactive chip  -> switch person (chat history follows)
+    //   - tap active chip    -> open that person's profile detail (chip shows a › affordance)
+    //   - long-press any chip -> open that person's profile detail directly
+    //   - trailing ( + )     -> create a new profile
+    if (els.ptChipRail) {
+      let pressTimer = null;
+      let longPressFired = false;
+
+      els.ptChipRail.addEventListener("pointerdown", (e) => {
+        const chip = e.target.closest("[data-rail-pt]");
+        longPressFired = false;
+        clearTimeout(pressTimer);
+        if (!chip) return;
+        chip.classList.add("is-pressing");
+        if (state.railManage) {
+          chip.classList.remove("is-pressing");
+          return;
+        }
+        pressTimer = setTimeout(() => {
+          longPressFired = true;
+          chip.classList.remove("is-pressing");
+          openPatientDetailFromRail(chip.getAttribute("data-rail-pt"));
+        }, 520);
+      });
+
+      const cancelPress = () => {
+        clearTimeout(pressTimer);
+        els.ptChipRail.querySelectorAll(".is-pressing").forEach((c) => c.classList.remove("is-pressing"));
+      };
+      ["pointerup", "pointerleave", "pointercancel"].forEach((evt) =>
+        els.ptChipRail.addEventListener(evt, cancelPress)
+      );
+      els.ptChipRail.addEventListener("scroll", cancelPress, { passive: true });
+      els.ptChipRail.addEventListener("contextmenu", (e) => e.preventDefault());
+
+      els.ptChipRail.addEventListener("click", (e) => {
+        if (longPressFired) {
+          longPressFired = false;
+          return;
+        }
+        if (e.target.closest("[data-rail-done]")) {
+          setRailManage(false);
+          return;
+        }
+        const delBtn = e.target.closest("[data-rail-del]");
+        if (delBtn) {
+          e.stopPropagation();
+          requestRailDelete(delBtn.getAttribute("data-rail-del"));
+          return;
+        }
+        if (e.target.closest("[data-rail-add]")) {
+          if (state.currentStep !== 4) switchStep(4);
+          switchH5SubPage("profile_edit", { mode: "create" });
+          return;
+        }
+        const detailBtn = e.target.closest("[data-rail-detail]");
+        if (detailBtn) {
+          openPatientDetailFromRail(detailBtn.getAttribute("data-rail-detail"));
+          return;
+        }
+        const chip = e.target.closest("[data-rail-pt]");
+        if (!chip || chip.classList.contains("active")) return;
+        switchActivePatientFromRail(chip.getAttribute("data-rail-pt"));
+      });
+
+      // Desktop demo: vertical mouse wheel scrolls the rail horizontally
+      els.ptChipRail.addEventListener(
+        "wheel",
+        (e) => {
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            els.ptChipRail.scrollLeft += e.deltaY;
+          }
+        },
+        { passive: false }
+      );
+    }
+
+    // Pinned rail text button: 管理 <-> 完成
+    if (els.btnPtRailManage) {
+      els.btnPtRailManage.addEventListener("click", () => {
+        const pt = store.getActive();
+        if (pt) openPatientDetailFromRail(pt.id);
+      });
+    }
+
+    // Per-Patient History Clear Micro-Bar Events (In-Place Light Confirmation)
+    if (els.chatHistoryBar) {
+      els.chatHistoryBar.addEventListener("click", () => {
+        if (state.currentStep !== 4) switchStep(4);
+        switchH5SubPage("profile_edit", { mode: "edit" });
+      });
+    }
+    if (els.btnHistoryClear) {
+      els.btnHistoryClear.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleClearCapsuleClick();
       });
     }
 
@@ -1456,7 +1972,7 @@
       });
     }
 
-    // Topbar Right Capsule (User Info Page on Step 3 or Step 4): "保存"
+    // Topbar Right Capsule (User Info Page on Step 4): "保存"
     if (els.btnTopbarSaveProfile) {
       els.btnTopbarSaveProfile.addEventListener("click", () => {
         const targetForm = state.currentStep === 3 ? els.selfOnboardingForm : els.ptEditForm;
@@ -1466,6 +1982,75 @@
           } else {
             targetForm.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
           }
+        }
+      });
+    }
+
+    // Topbar Right Capsule (Step 3 User Info Page): "清空"
+    if (els.btnTopbarClearForm) {
+      els.btnTopbarClearForm.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleClearStep3Form();
+      });
+    }
+
+    // Step 3 Editable Name Combobox Dropdown Toggle & Item Actions (Select / Edit / Delete)
+    if (els.btnSPtDropdown) {
+      els.btnSPtDropdown.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleStep3NameDropdown();
+      });
+    }
+
+    if (els.sPtNameMenu) {
+      els.sPtNameMenu.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const delBtn = e.target.closest("[data-s3-del]");
+        if (delBtn) {
+          const ptId = delBtn.getAttribute("data-s3-del");
+          const allPts = store.getAll();
+          if (allPts.length <= 1) {
+            showToast("至少需保留一位问诊人物档案");
+            return;
+          }
+          const targetPt = store.getById(ptId);
+          const targetName = targetPt ? targetPt.name : "该人物";
+          if (store.deletePatient(ptId)) {
+            const nextActive = store.getActive();
+            populateSelfOnboardingForm(nextActive);
+            renderPatientUI();
+            renderChatMessages();
+            renderStep3NameDropdown();
+            showToast(`已删除「${targetName}」的档案`);
+          }
+          return;
+        }
+
+        const editBtn = e.target.closest("[data-s3-edit]");
+        if (editBtn) {
+          const ptId = editBtn.getAttribute("data-s3-edit");
+          const pt = store.setActive(ptId);
+          populateSelfOnboardingForm(pt);
+          renderPatientUI();
+          renderChatMessages();
+          toggleStep3NameDropdown(false);
+          if (els.sPtName) {
+            els.sPtName.focus();
+            els.sPtName.select();
+          }
+          showToast(`正在编辑「${pt.name}」的档案，可直接修改姓名与病史`);
+          return;
+        }
+
+        const selectBtn = e.target.closest("[data-s3-select]");
+        if (selectBtn) {
+          const ptId = selectBtn.getAttribute("data-s3-select");
+          const pt = store.setActive(ptId);
+          populateSelfOnboardingForm(pt);
+          renderPatientUI();
+          renderChatMessages();
+          toggleStep3NameDropdown(false);
+          showToast(`已切换为「${pt.name}」的档案`);
         }
       });
     }
@@ -1513,12 +2098,24 @@
       });
     }
 
-    // Click outside closes custom dropdown
+    // Click outside closes custom dropdown & inline clear confirm
     document.addEventListener("click", (e) => {
+      if (els.sPtNameCombo && els.sPtNameCombo.classList.contains("open")) {
+        if (!els.sPtNameCombo.contains(e.target)) {
+          toggleStep3NameDropdown(false);
+        }
+      }
       if (els.customPtDropdown && els.customPtDropdown.classList.contains("open")) {
         if (!els.customPtDropdown.contains(e.target)) {
           toggleCustomPtDropdown(false);
         }
+      }
+      const railWrap = document.getElementById("pt-rail-wrap");
+      if (state.railManage && railWrap && !railWrap.contains(e.target)) {
+        setRailManage(false);
+      }
+      if (state.clearConfirmTimer && els.btnHistoryClear && !els.btnHistoryClear.contains(e.target)) {
+        closeHistoryClearConfirm();
       }
     });
 
@@ -1537,7 +2134,19 @@
       els.ptEditForm.addEventListener("submit", handleSavePatient);
     }
     if (els.btnPtDelete) {
-      els.btnPtDelete.addEventListener("click", () => handleDeletePatient());
+      els.btnPtDelete.addEventListener("click", () => {
+        const targetId = els.fPtId ? els.fPtId.value : "";
+        if (!targetId) return;
+        if (!els.btnPtDelete.classList.contains("is-confirming")) {
+          els.btnPtDelete.classList.add("is-confirming");
+          els.btnPtDelete.textContent = "再次点击确认删除";
+          clearTimeout(state.profileDelTimer);
+          state.profileDelTimer = setTimeout(resetProfileDeleteBtn, 3000);
+          return;
+        }
+        resetProfileDeleteBtn();
+        if (handleDeletePatientById(targetId)) switchH5SubPage("chat");
+      });
     }
 
     // 8. Watch Click-to-Start / Click-to-End & Phone Orb Click Interaction
@@ -1560,6 +2169,23 @@
       els.watchCrownBtn.addEventListener("click", () => {
         const next = (state.currentStep % 5) + 1;
         switchStep(next);
+      });
+    }
+
+    if (els.watchTopSeg) {
+      els.watchTopSeg.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const currentTab = els.watchTopSeg.getAttribute("data-active-tab") || "voice";
+        const clickedBtn = e.target.closest(".watch-seg-btn[data-watch-tab]");
+        const requestedTab = clickedBtn ? clickedBtn.getAttribute("data-watch-tab") : null;
+        // Clicking the inactive segment switches to it; clicking the active segment also toggles to the other side
+        const nextTab =
+          requestedTab && requestedTab !== currentTab
+            ? requestedTab
+            : currentTab === "voice"
+            ? "qr"
+            : "voice";
+        switchWatchScreenTab(nextTab);
       });
     }
 
@@ -1617,6 +2243,362 @@
         switchStep(4);
       });
     }
+
+    // 10. Interactive Spotlight & Pulse-Ring Coachmark Controls (Steps 3 & 4)
+    if (els.btnReplayGuide) {
+      els.btnReplayGuide.addEventListener("click", (e) => {
+        e.stopPropagation();
+        replayCurrentViewTour();
+      });
+    }
+    if (els.btnCoachSkip) {
+      els.btnCoachSkip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        stopCoachmarkTour(true);
+      });
+    }
+    if (els.btnCoachPrev) {
+      els.btnCoachPrev.addEventListener("click", (e) => {
+        e.stopPropagation();
+        stepCoachmarkTour(-1);
+      });
+    }
+    if (els.btnCoachNext) {
+      els.btnCoachNext.addEventListener("click", (e) => {
+        e.stopPropagation();
+        stepCoachmarkTour(1);
+      });
+    }
+
+    // Direct target interaction: clicking inside the highlighted target advances or completes the tour
+    document.addEventListener(
+      "click",
+      (e) => {
+        if (!state.activeTourKey) return;
+        if (els.coachmarkCard && els.coachmarkCard.contains(e.target)) return;
+        if (els.btnReplayGuide && els.btnReplayGuide.contains(e.target)) return;
+        const targetEl = getCurrentCoachmarkTargetEl();
+        if (targetEl && targetEl.contains(e.target)) {
+          const tour = COACHMARK_TOURS[state.activeTourKey];
+          const isLast = !tour || state.activeTourIndex >= tour.steps.length - 1;
+          const prevTourKey = state.activeTourKey;
+          setTimeout(() => {
+            // If clicking the target already switched views/tours, do nothing
+            if (state.activeTourKey !== prevTourKey) return;
+            if (isLast) {
+              stopCoachmarkTour(true);
+            } else {
+              stepCoachmarkTour(1);
+            }
+          }, 260);
+        }
+      },
+      true
+    );
+
+    window.addEventListener("resize", () => {
+      if (state.activeTourKey) positionCoachmark();
+    });
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (state.activeTourKey) positionCoachmark();
+      },
+      true
+    );
+  }
+
+  /**
+   * ============================================================================
+   * IN-PHONE H5 COACHMARK & PULSE-RING TUTORIAL ENGINE (Steps 3 & 4)
+   * Strictly rendered inside #phone-screen following the patient's H5 rhythm.
+   * ============================================================================
+   */
+  const COACHMARK_TOURS = {
+    step3_userinfo: {
+      sceneTag: "建档引导",
+      steps: [
+        {
+          selector: "#s-pt-name-combo",
+          title: "选择、编辑或新建问诊人",
+          desc: "点右侧下拉箭头可切换、编辑或删除已存人物；也可点右上角「清空」后直接输入新姓名。",
+          pad: 4,
+          radius: 12
+        },
+        {
+          selector: '#phone-view-3 [data-module-card="vitals"]',
+          title: "填写性别与基础体征",
+          desc: "选择性别并填写年龄（岁）、体重（kg）和身高（cm），作为健康评估与用药剂量的基础依据。",
+          pad: 4,
+          radius: 16
+        },
+        {
+          selector: '[data-field-wrap="s-pt-history"]',
+          title: "填写既往病史",
+          desc: "填写已确诊的慢性病、手术史或药物过敏史（如：原发性高血压、冠心病、糖尿病、PCI 术后等）。",
+          pad: 4,
+          radius: 12
+        },
+        {
+          selector: '[data-field-wrap="s-pt-meds"]',
+          title: "填写当前在用药物",
+          desc: "每行填写一种正在服用的药物名称、单次剂量与每日频次（如：氨氯地平片 5mg/次，1次/日，口服）。",
+          pad: 4,
+          radius: 12
+        },
+        {
+          selector: '[data-field-wrap="s-pt-extra"]',
+          title: "填写化验指标或补充说明",
+          desc: "可填写近期体检生化指标（如血脂、血糖、肌酐、血压值）或近期伴随的不适症状（如头晕、胸闷、水肿）。",
+          pad: 4,
+          radius: 12
+        },
+        {
+          selector: "#btn-enter-consult",
+          title: "进入问诊（自动保存档案）",
+          desc: "点击「进入问诊」即自动保存当前人物档案，并进入该人物的专属 AI 医生问诊界面。",
+          pad: 4,
+          radius: 999
+        }
+      ]
+    },
+    step4_chat: {
+      sceneTag: "问诊引导",
+      steps: [
+        {
+          selector: "#cyber-chat-form",
+          title: "直接打字提问或用手表语音",
+          desc: "在此输入健康疑问发送，或直接对智能手表说话，语音内容将实时同步至此处。",
+          pad: 4,
+          radius: 999
+        },
+        {
+          selector: "#h5-topbar",
+          title: "清空对话或返回切换人物",
+          desc: "点击右上角可清空当前对话或查看档案；点击左上角「返回」可回到用户信息页切换其他问诊人。",
+          pad: 2,
+          radius: 14
+        }
+      ]
+    },
+    step4_profile: {
+      sceneTag: "档案引导",
+      steps: [
+        {
+          selector: ".role-control-card",
+          title: "切换家庭成员或手动新建",
+          desc: "点下拉菜单可切换不同家庭成员档案，点右上角「+ 手动填写」可添加新成员。",
+          pad: 5,
+          radius: 16
+        },
+        {
+          selector: "#btn-topbar-save-profile",
+          title: "修改后点「保存」生效",
+          desc: "保存后立即同步至 AI 问诊上下文；非本人档案滑至页面最底部可删除。",
+          pad: 4,
+          radius: 999
+        }
+      ]
+    }
+  };
+
+  function getActiveViewTourKey() {
+    if (state.currentStep === 3) return "step3_userinfo";
+    if (state.currentStep === 4) {
+      return state.h5SubPage === "profile_edit" ? "step4_profile" : "step4_chat";
+    }
+    return null;
+  }
+
+  function maybeAutoStartTour(tourKey) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("notour") === "1") return;
+    if (!tourKey || !COACHMARK_TOURS[tourKey]) return;
+    if (state.seenTours[tourKey]) {
+      if (state.activeTourKey && state.activeTourKey !== tourKey) {
+        stopCoachmarkTour(false);
+      }
+      return;
+    }
+    clearTimeout(state.tourTimer);
+    state.tourTimer = setTimeout(() => {
+      if (getActiveViewTourKey() === tourKey && !state.seenTours[tourKey]) {
+        const initStep = Math.max(0, (Number(params.get("tourstep")) || 1) - 1);
+        startCoachmarkTour(tourKey, initStep);
+      }
+    }, 30);
+  }
+
+  function replayCurrentViewTour() {
+    let tourKey = getActiveViewTourKey();
+    if (!tourKey) {
+      // If user clicks "💡 操作指引" while on Step 1, 2 or 5, jump to Step 3 to start the guided flow
+      state.seenTours.step3_userinfo = true;
+      switchStep(3);
+      tourKey = "step3_userinfo";
+    }
+    startCoachmarkTour(tourKey, 0);
+  }
+
+  function startCoachmarkTour(tourKey, stepIdx = 0) {
+    const tour = COACHMARK_TOURS[tourKey];
+    if (!tour || !els.coachmarkLayer) return;
+    state.activeTourKey = tourKey;
+    state.activeTourIndex = Math.max(0, Math.min(stepIdx, tour.steps.length - 1));
+    state.seenTours[tourKey] = true;
+    els.coachmarkLayer.classList.remove("is-animated");
+    els.coachmarkLayer.classList.add("active");
+    els.coachmarkLayer.setAttribute("aria-hidden", "false");
+    if (els.btnReplayGuide) els.btnReplayGuide.classList.add("is-active");
+    renderCoachmarkStep(true);
+    requestAnimationFrame(() => {
+      if (els.coachmarkLayer && state.activeTourKey) {
+        els.coachmarkLayer.classList.add("is-animated");
+      }
+    });
+  }
+
+  function stopCoachmarkTour(showCompleteToast = false) {
+    clearTimeout(state.tourTimer);
+    state.activeTourKey = null;
+    state.activeTourIndex = 0;
+    if (els.coachmarkLayer) {
+      els.coachmarkLayer.classList.remove("active", "is-animated");
+      els.coachmarkLayer.setAttribute("aria-hidden", "true");
+    }
+    if (els.btnReplayGuide) els.btnReplayGuide.classList.remove("is-active");
+    if (showCompleteToast) {
+      showToast("操作指引已收起 · 可随时点右上角「💡 操作指引」重播");
+    }
+  }
+
+  function stepCoachmarkTour(delta) {
+    if (!state.activeTourKey) return;
+    const tour = COACHMARK_TOURS[state.activeTourKey];
+    if (!tour) return;
+    const nextIdx = state.activeTourIndex + delta;
+    if (nextIdx < 0) return;
+    if (nextIdx >= tour.steps.length) {
+      stopCoachmarkTour(true);
+      return;
+    }
+    state.activeTourIndex = nextIdx;
+    renderCoachmarkStep();
+  }
+
+  function getCurrentCoachmarkTargetEl() {
+    if (!state.activeTourKey) return null;
+    const tour = COACHMARK_TOURS[state.activeTourKey];
+    if (!tour) return null;
+    const stepCfg = tour.steps[state.activeTourIndex];
+    if (!stepCfg) return null;
+    let el = document.querySelector(stepCfg.selector);
+    if ((!el || el.offsetParent === null) && stepCfg.fallbackSelector) {
+      el = document.querySelector(stepCfg.fallbackSelector);
+    }
+    return el;
+  }
+
+  function renderCoachmarkStep() {
+    const tour = COACHMARK_TOURS[state.activeTourKey];
+    if (!tour) return;
+    const total = tour.steps.length;
+    const idx = state.activeTourIndex;
+    const stepCfg = tour.steps[idx];
+    if (!stepCfg) return;
+
+    if (els.coachmarkSceneTag) els.coachmarkSceneTag.textContent = tour.sceneTag;
+    if (els.coachmarkStepCounter) els.coachmarkStepCounter.textContent = `${idx + 1} / ${total}`;
+    if (els.coachmarkTitle) els.coachmarkTitle.textContent = stepCfg.title;
+    if (els.coachmarkDesc) els.coachmarkDesc.textContent = stepCfg.desc;
+    if (els.coachmarkHintText) {
+      els.coachmarkHintText.textContent =
+        stepCfg.hint || "可直接点击光圈内控件体验，或点「下一步」";
+    }
+
+    if (els.coachmarkDots) {
+      els.coachmarkDots.innerHTML = tour.steps
+        .map((_, i) => `<span class="coach-dot ${i === idx ? "active" : ""}"></span>`)
+        .join("");
+    }
+
+    if (els.btnCoachPrev) {
+      els.btnCoachPrev.style.display = idx === 0 ? "none" : "inline-flex";
+    }
+    if (els.btnCoachNext) {
+      els.btnCoachNext.textContent = idx === total - 1 ? "知道了" : "下一步";
+    }
+
+    const targetEl = getCurrentCoachmarkTargetEl();
+    if (targetEl) {
+      const scrollParent = targetEl.closest(".userinfo-scroll-body, .profile-edit-scroll");
+      if (scrollParent) {
+        const parentRect = scrollParent.getBoundingClientRect();
+        const elRect = targetEl.getBoundingClientRect();
+        if (elRect.bottom > parentRect.bottom - 12 || elRect.top < parentRect.top + 12) {
+          const offset = elRect.top - parentRect.top - (parentRect.height - elRect.height) / 2;
+          scrollParent.scrollTop = Math.max(0, scrollParent.scrollTop + offset);
+        }
+      }
+    }
+    positionCoachmark();
+    requestAnimationFrame(positionCoachmark);
+  }
+
+  function positionCoachmark() {
+    if (!state.activeTourKey || !els.coachmarkRing || !els.coachmarkCard || !els.phoneScreen) return;
+    const tour = COACHMARK_TOURS[state.activeTourKey];
+    if (!tour) return;
+    const stepCfg = tour.steps[state.activeTourIndex];
+    const targetEl = getCurrentCoachmarkTargetEl();
+    if (!targetEl || !stepCfg) return;
+
+    const screenRect = els.phoneScreen.getBoundingClientRect();
+    const rect = targetEl.getBoundingClientRect();
+    const screenW = screenRect.width || 378;
+    const screenH = screenRect.height || 734;
+
+    const pad = stepCfg.pad ?? 5;
+    const rawTop = rect.top - screenRect.top - pad;
+    const rawLeft = rect.left - screenRect.left - pad;
+    const rawWidth = rect.width + pad * 2;
+    const rawHeight = rect.height + pad * 2;
+
+    const ringLeft = Math.max(6, Math.min(screenW - 28, rawLeft));
+    const ringTop = Math.max(6, Math.min(screenH - 28, rawTop));
+    const ringWidth = Math.max(28, Math.min(screenW - ringLeft - 6, rawWidth));
+    const ringHeight = Math.max(24, Math.min(screenH - ringTop - 6, rawHeight));
+
+    els.coachmarkRing.style.top = `${ringTop}px`;
+    els.coachmarkRing.style.left = `${ringLeft}px`;
+    els.coachmarkRing.style.width = `${ringWidth}px`;
+    els.coachmarkRing.style.height = `${ringHeight}px`;
+    els.coachmarkRing.style.borderRadius = `${stepCfg.radius ?? 16}px`;
+
+    // Position the floating instruction card strictly inside #phone-screen
+    const cardWidth = els.coachmarkCard.offsetWidth || 312;
+    const cardHeight = els.coachmarkCard.offsetHeight || 136;
+    const gap = 12;
+
+    const spaceBelow = screenH - (ringTop + ringHeight);
+    const spaceAbove = ringTop;
+    const placeBelow = spaceBelow >= cardHeight + gap + 12 || spaceBelow >= spaceAbove;
+
+    const cardTop = placeBelow
+      ? Math.min(screenH - cardHeight - 14, ringTop + ringHeight + gap)
+      : Math.max(36, ringTop - cardHeight - gap);
+
+    const targetCenterX = ringLeft + ringWidth / 2;
+    const cardLeft = Math.max(12, Math.min(screenW - cardWidth - 12, targetCenterX - cardWidth / 2));
+
+    els.coachmarkCard.setAttribute("data-place", placeBelow ? "bottom" : "top");
+    els.coachmarkCard.style.top = `${cardTop}px`;
+    els.coachmarkCard.style.left = `${cardLeft}px`;
+
+    if (els.coachmarkArrow) {
+      const arrowLeft = Math.max(20, Math.min(cardWidth - 26, targetCenterX - cardLeft - 5));
+      els.coachmarkArrow.style.left = `${arrowLeft}px`;
+    }
   }
 
   /**
@@ -1624,6 +2606,11 @@
    */
   function applyUrlParams() {
     const params = new URLSearchParams(window.location.search);
+    if (params.get("notour") === "1") {
+      state.seenTours.step3_userinfo = true;
+      state.seenTours.step4_chat = true;
+      state.seenTours.step4_profile = true;
+    }
     const stepParam = Number(params.get("step"));
     if ([1, 2, 3, 4, 5].includes(stepParam)) {
       switchStep(stepParam);
@@ -1669,7 +2656,11 @@
 
     if (params.get("dropdown") === "1" || params.get("menu") === "1") {
       setTimeout(() => {
-        toggleCustomPtDropdown(true);
+        if (state.currentStep === 3) {
+          toggleStep3NameDropdown(true);
+        } else {
+          toggleCustomPtDropdown(true);
+        }
       }, 120);
     }
 

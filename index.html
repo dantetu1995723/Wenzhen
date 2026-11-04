@@ -43,10 +43,16 @@
       </button>
     </nav>
 
-    <!-- Unified TechOrb 2-State Quick Switcher (Only Normal & Conversation states) -->
-    <div class="orb-state-bar">
-      <button type="button" class="orb-chip active" data-orb-state="idle">正常状态</button>
-      <button type="button" class="orb-chip" data-orb-state="listening">对话状态</button>
+    <!-- Unified TechOrb 2-State Quick Switcher & Interactive Guide Trigger -->
+    <div class="header-right-cluster">
+      <button type="button" class="guide-trigger-btn" id="btn-replay-guide" title="重新播放当前界面的交互操作指引">
+        <span class="guide-btn-pulse" aria-hidden="true"></span>
+        <span>💡 操作指引</span>
+      </button>
+      <div class="orb-state-bar">
+        <button type="button" class="orb-chip active" data-orb-state="idle">正常状态</button>
+        <button type="button" class="orb-chip" data-orb-state="listening">对话状态</button>
+      </div>
     </div>
   </header>
 
@@ -70,7 +76,7 @@
         </div>
 
         <div class="phone-shell">
-          <div class="phone-screen">
+          <div class="phone-screen" id="phone-screen">
 
             <!-- Phone Status Bar -->
             <div class="phone-statusbar">
@@ -78,54 +84,66 @@
               <span>5G · 100%</span>
             </div>
 
-            <!-- Integrated Minimalist White-Tech Navigation Header (Left: Back Capsule, Center: Orb+HEARTMED or Subpage Title, Right: Person Select / Action Capsule) -->
-            <div class="h5-topbar" id="h5-topbar">
-              <div class="topbar-left">
-                <button type="button" class="topbar-nav-capsule back-capsule" id="btn-topbar-back" title="返回上一页">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                  <span id="topbar-back-label">返回</span>
-                </button>
-              </div>
-              <div class="topbar-center">
-                <!-- Fixed Static Original HEARTMED Logo as Navbar Title -->
-                <div class="topbar-brand-fixed" id="topbar-brand-fixed" title="HEARTMED 原装标志">
-                  <img src="./assets/logo-mark.svg" alt="HEARTMED" class="topbar-brand-mark" />
-                  <span class="topbar-brand-text">HEART<em>MED</em></span>
+            <!-- Integrated Minimalist White-Tech Unified Header (Row 1: Symmetrical Nav Capsules + Brand, Row 2: Integrated Patient & Clear Capsule Bar) -->
+            <div class="h5-topbar has-context-bar" id="h5-topbar">
+              <div class="topbar-main-row">
+                <div class="topbar-left">
+                  <button type="button" class="topbar-nav-capsule back-capsule" id="btn-topbar-back" title="返回上一页">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span id="topbar-back-label">返回</span>
+                  </button>
                 </div>
-                <!-- Secondary Full-Page Title (Symmetrically Centered) -->
-                <span class="topbar-page-title" id="topbar-page-title" style="display:none;">选择问诊人物</span>
-              </div>
-              <div class="topbar-right">
-                <!-- Chat View: Current Patient Capsule -->
-                <button type="button" class="topbar-nav-capsule pt-capsule" id="btn-topbar-pt" title="点击选择人物档案">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <span id="topbar-pt-text">陈敏</span>
-                  <span class="pt-capsule-arrow">▾</span>
-                </button>
+                <div class="topbar-center">
+                  <!-- Chat View Title Stack: HEARTMED Brand + Current Patient Identity Tag (also the patient switcher) -->
+                  <div class="topbar-title-stack">
+                    <div class="topbar-brand-fixed" id="topbar-brand-fixed" title="HEARTMED 原装标志">
+                      <img src="./assets/logo-mark.svg" alt="HEARTMED" class="topbar-brand-mark" />
+                      <span class="topbar-brand-text">HEART<em>MED</em></span>
+                    </div>
+                  </div>
+                  <!-- Secondary Full-Page Title (Symmetrically Centered) -->
+                  <span class="topbar-page-title" id="topbar-page-title" style="display:none;">选择问诊人物</span>
+                </div>
+                <div class="topbar-right">
+                  <!-- Chat View: Clear History Capsule (mirror of 返回; morphs in place into 确认清空 with countdown) -->
+                  <button type="button" class="topbar-nav-capsule clear-capsule" id="btn-history-clear" title="清空当前人物的历史问答记录">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span id="btn-history-clear-label">清空</span>
+                  </button>
 
-                <!-- Person Selector Page: Add Person Capsule -->
-                <button type="button" class="topbar-nav-capsule action-capsule" id="btn-topbar-add-person" style="display:none;" title="手动填写新档案">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                  <span>手动填写</span>
-                </button>
+                  <!-- Person Selector Page: Add Person Capsule -->
+                  <button type="button" class="topbar-nav-capsule action-capsule" id="btn-topbar-add-person" style="display:none;" title="手动填写新档案">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>手动填写</span>
+                  </button>
 
-                <!-- Profile Edit Page: Save Capsule (Same spec & color as Left Back button) -->
-                <button type="button" class="topbar-nav-capsule save-capsule" id="btn-topbar-save-profile" style="display:none;" title="保存患者档案">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  <span>保存</span>
-                </button>
+                  <!-- Step 3 User Info Page: Clear Form Capsule ("进入问诊" saves; top-right clears form) -->
+                  <button type="button" class="topbar-nav-capsule clear-capsule" id="btn-topbar-clear-form" style="display:none;" title="清空当前表单内容，重新填写或新建人物">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span>清空</span>
+                  </button>
+
+                  <!-- Profile Edit Page: Save Capsule (Same spec & color as Left Back button) -->
+                  <button type="button" class="topbar-nav-capsule save-capsule" id="btn-topbar-save-profile" style="display:none;" title="保存患者档案">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                      <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>保存</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -221,9 +239,19 @@
                   <!-- Card A: Identity & 3-Tile Vitals Dashboard -->
                   <div class="userinfo-card vitals-card" data-module-card="vitals">
                     <div class="identity-row">
-                      <div class="identity-name-box" data-field-wrap="s-pt-name">
+                      <div class="identity-name-box name-combo-wrap" id="s-pt-name-combo" data-field-wrap="s-pt-name">
                         <label for="s-pt-name">姓名</label>
-                        <input type="text" id="s-pt-name" data-field-label="姓名" placeholder="请输入您的姓名" required />
+                        <div class="name-combo-field">
+                          <input type="text" id="s-pt-name" data-field-label="姓名" placeholder="输入或选择姓名" autocomplete="off" required />
+                          <button type="button" class="name-combo-arrow-btn" id="btn-s-pt-dropdown" aria-label="展开人物下拉列表" title="选择、编辑或删除人物">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                        <div class="name-combo-menu" id="s-pt-name-menu" role="listbox" aria-label="人物档案列表">
+                          <!-- Populated dynamically by js/app.js -->
+                        </div>
                       </div>
                       <div class="identity-gender-box">
                         <label>性别</label>
@@ -538,11 +566,37 @@
                         </svg>
                         <span>保存患者档案</span>
                       </button>
+                      <!-- Text-style delete (non-self only); two-tap in-place confirm -->
+                      <button type="button" class="btn-profile-delete" id="btn-pt-delete" style="display:none;">删除此人物档案</button>
                     </div>
                   </form>
                 </div>
               </div>
             </div>
+
+            <!-- In-Phone H5 Spotlight Coachmark Overlay (手机内新手指引) -->
+            <div class="coachmark-layer" id="coachmark-layer" aria-hidden="true">
+              <div class="coachmark-ring" id="coachmark-ring"></div>
+
+              <div class="coachmark-card" id="coachmark-card" role="dialog" aria-labelledby="coachmark-title">
+                <span class="coachmark-arrow" id="coachmark-arrow" aria-hidden="true"></span>
+                <div class="coachmark-head">
+                  <span class="coachmark-scene-tag" id="coachmark-scene-tag">新手指引</span>
+                  <span class="coachmark-step-counter" id="coachmark-step-counter">1 / 3</span>
+                </div>
+                <div class="coachmark-title" id="coachmark-title">切换家人问诊记录</div>
+                <p class="coachmark-desc" id="coachmark-desc">左右滑动并点击姓名，即可切换对应家人的专属问诊历史。</p>
+                <div class="coachmark-foot">
+                  <div class="coachmark-dots" id="coachmark-dots"></div>
+                  <div class="coachmark-actions">
+                    <button type="button" class="coach-btn ghost" id="btn-coach-skip">跳过</button>
+                    <button type="button" class="coach-btn sub" id="btn-coach-prev">上一步</button>
+                    <button type="button" class="coach-btn primary" id="btn-coach-next">下一步</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -575,7 +629,14 @@
             <div class="watch-side-btn"></div>
 
             <div class="watch-screen">
-              <!-- WATCH VIEW 1: QR CODE BINDING (Slide 2 - No extra text) -->
+              <!-- WATCH TOP SEGMENTED TOGGLE SWITCH: 语音界面 | 二维码 -->
+              <div class="watch-top-seg" id="watch-top-seg" data-active-tab="voice" role="tablist" aria-label="手表界面切换">
+                <span class="watch-seg-thumb" aria-hidden="true"></span>
+                <button type="button" class="watch-seg-btn active" data-watch-tab="voice" role="tab" aria-selected="true">语音界面</button>
+                <button type="button" class="watch-seg-btn" data-watch-tab="qr" role="tab" aria-selected="false">二维码</button>
+              </div>
+
+              <!-- WATCH VIEW 1: QR CODE BINDING -->
               <div class="watch-view" id="watch-view-1">
                 <div class="watch-qr-card" id="watch-qr-trigger" title="点击模拟微信扫码">
                   <svg viewBox="0 0 120 120" width="148" height="148">

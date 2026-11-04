@@ -10,7 +10,7 @@
 
   const STORAGE_KEY_PATIENTS = 'wenzhen_patients_v2';
   const STORAGE_KEY_ACTIVE_ID = 'wenzhen_active_patient_id_v2';
-  const STORAGE_KEY_CHATS = 'wenzhen_chats_v2';
+  const STORAGE_KEY_CHATS = 'wenzhen_chats_v3';
 
   const DEFAULT_PATIENTS = [
     {
@@ -218,8 +218,227 @@
           role: 'assistant',
           source: 'system',
           time: '10:00',
-          text: '张三先生，已加载您的高血压、糖尿病及 PCI 术后档案，今日有何不适？',
-          tags: ['档案已同步']
+          text: '张三先生，已同步您的高血压、2型糖尿病及 PCI 术后档案（共 5 项在用药物）。请直接语音或打字提问。',
+          tags: ['档案已同步', 'PCI术后']
+        },
+        {
+          id: 'msg_zs_2',
+          role: 'user',
+          source: 'h5',
+          time: '10:04',
+          text: '今天空腹血糖测出来 6.9，二甲双胍和阿司匹林是饭前吃还是饭后吃？'
+        },
+        {
+          id: 'msg_zs_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '10:04',
+          text: '1. **空腹血糖 6.9 mmol/L** 接近达标上限（建议控制在 <6.5），请注意晚餐少吃精制碳水。\n2. **二甲双胍片(0.5g)** 建议随餐或餐后即刻服用，可减轻胃肠道反应。\n3. **阿司匹林肠溶片(100mg)** 宜空腹温水送服，与 **氯吡格雷** 双抗期间请留意有无牙龈出血或黑便。',
+          tags: ['血糖管理', '双抗指导']
+        }
+      ],
+      pt_lisi: [
+        {
+          id: 'msg_ls_1',
+          role: 'assistant',
+          source: 'system',
+          time: '08:40',
+          text: '李四先生，已同步您的冠心病、阵发性房颤及高血压档案（共 4 项在用药物）。请直接提问。',
+          tags: ['档案已同步', '阵发性房颤']
+        },
+        {
+          id: 'msg_ls_2',
+          role: 'user',
+          source: 'watch',
+          duration: '04"',
+          time: '08:45',
+          text: '昨晚睡觉感觉心跳漏了一拍，手表显示心率 68，利伐沙班今天怎么吃？'
+        },
+        {
+          id: 'msg_ls_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '08:45',
+          text: '1. **平均心率 68 bpm** 处于理想控制范围，偶发早搏或短阵房颤无需惊慌，请继续按时服用 **琥珀酸美托洛尔缓释片(47.5mg)**。\n2. **利伐沙班片(15mg)** 请务必**随餐服用**以提高吸收率，切勿漏服或自行停药。',
+          tags: ['房颤抗凝', '心率评估']
+        }
+      ],
+      pt_wangfang: [
+        {
+          id: 'msg_wf_1',
+          role: 'assistant',
+          source: 'system',
+          time: '11:10',
+          text: '王芳女士，已同步您的 2 型糖尿病、高脂血症及颈动脉斑块档案（共 3 项在用药物）。',
+          tags: ['档案已同步', '颈动脉斑块']
+        },
+        {
+          id: 'msg_wf_2',
+          role: 'user',
+          source: 'h5',
+          time: '11:12',
+          text: '复查说右侧颈动脉有 4.2mm 斑块，阿托伐他汀晚上忘记吃了早上能补吗？'
+        },
+        {
+          id: 'msg_wf_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '11:12',
+          text: '1. **阿托伐他汀钙片(20mg)** 半衰期较长，昨晚漏服可在今早补服一次，今晚恢复正常时间即可（切勿一次吃两片）。\n2. 针对 **颈动脉斑块**，需将 **LDL-C 严格控制在 <1.8 mmol/L**，请坚持服用他汀及 **达格列净**，并多饮水。',
+          tags: ['斑块稳控', '漏服处理']
+        }
+      ],
+      pt_zhaojianguo: [
+        {
+          id: 'msg_zjg_1',
+          role: 'assistant',
+          source: 'system',
+          time: '07:50',
+          text: '赵建国先生，已同步您的慢性心衰(II-III级)与陈旧性心梗档案（共 4 项在用药物）。',
+          tags: ['档案已同步', '心衰管理']
+        },
+        {
+          id: 'msg_zjg_2',
+          role: 'user',
+          source: 'watch',
+          duration: '06"',
+          time: '07:55',
+          text: '今早称体重比前天重了快 2 斤，脚踝有点按着凹陷，呋塞米要吃吗？'
+        },
+        {
+          id: 'msg_zjg_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '07:55',
+          text: '1. **短期体重增加 + 踝部凹陷性水肿** 提示轻度水钠潴留，请今日按医嘱服用 **呋塞米片(20mg)** 与 **螺内酯片(20mg)**。\n2. **沙库巴曲缬沙坦钠片(100mg)** 请早晚按时服用，今日严格控制饮水量（<1500mL）并记录尿量。',
+          tags: ['容量管理', '利尿指导']
+        }
+      ],
+      pt_liuxiaoyu: [
+        {
+          id: 'msg_lxy_1',
+          role: 'assistant',
+          source: 'system',
+          time: '21:20',
+          text: '刘小雨女士，已同步您的窦性心动过速、室性早搏档案（共 2 项在用药物）。',
+          tags: ['档案已同步', '室性早搏']
+        },
+        {
+          id: 'msg_lxy_2',
+          role: 'user',
+          source: 'h5',
+          time: '21:24',
+          text: '加班喝了半杯冰美式，现在心率 102 有点心慌，比索洛尔今天早上已经吃过了。'
+        },
+        {
+          id: 'msg_lxy_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '21:24',
+          text: '1. 咖啡因易诱发交感兴奋与早搏，**比索洛尔(2.5mg)** 每日仅需 1 次，今晚切勿重复加服。\n2. 建议立即停喝咖啡、深慢腹式呼吸并温水漱口，通常 30~60 分钟可回落；**辅酶Q10** 晚餐后可正常服用。',
+          tags: ['早搏缓解', '作息干预']
+        }
+      ],
+      pt_zhouming: [
+        {
+          id: 'msg_zm_1',
+          role: 'assistant',
+          source: 'system',
+          time: '12:30',
+          text: '周明先生，已同步您的高血压 1 级、高尿酸血症及脂肪肝档案（共 2 项在用药物）。',
+          tags: ['档案已同步', '高尿酸管理']
+        },
+        {
+          id: 'msg_zm_2',
+          role: 'user',
+          source: 'h5',
+          time: '12:33',
+          text: '体检尿酸 495 还没痛风发作，非布司他一定要吃满 3 个月吗？'
+        },
+        {
+          id: 'msg_zm_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '12:33',
+          text: '1. **血尿酸 495 μmol/L** 合并高血压与脂肪肝，坚持服用 **非布司他片(20mg/日)** 有助于将尿酸稳控在 <360，预防痛风及肾损伤。\n2. 服药期间请每日饮水 >2000mL，戒啤酒与海鲜浓汤，1 个月后复查肝功(ALT)与尿酸。',
+          tags: ['降尿酸指导', '护肝随访']
+        }
+      ],
+      pt_wuguilan: [
+        {
+          id: 'msg_wgl_1',
+          role: 'assistant',
+          source: 'system',
+          time: '06:50',
+          text: '吴桂兰女士，已同步您的高血压 3 级、骨质疏松及腔隙性脑梗死档案（共 4 项在用药物）。',
+          tags: ['档案已同步', '防跌倒预警']
+        },
+        {
+          id: 'msg_wgl_2',
+          role: 'user',
+          source: 'watch',
+          duration: '05"',
+          time: '06:54',
+          text: '早上刚从床上坐起来眼前发黑晃了一下，硝苯地平控释片可以掰开吃半片吗？'
+        },
+        {
+          id: 'msg_wgl_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '06:54',
+          text: '1. **严禁掰开或嚼碎**！**硝苯地平控释片(30mg)** 掰开会破坏激光控释膜导致血压骤降危险。\n2. 起床眼前发黑属 **体位性低血压** 表现，请遵循“三个半分钟”（醒后躺半分钟、坐起半分钟、双腿下垂半分钟再站立）。',
+          tags: ['控释片禁忌', '防体位性低血压']
+        }
+      ],
+      pt_sunhaoran: [
+        {
+          id: 'msg_shr_1',
+          role: 'assistant',
+          source: 'system',
+          time: '16:15',
+          text: '孙浩然先生，已同步您的稳定性心绞痛、高血压及高脂血症档案（共 4 项在用药物）。',
+          tags: ['档案已同步', '冠脉狭窄50%']
+        },
+        {
+          id: 'msg_shr_2',
+          role: 'user',
+          source: 'watch',
+          duration: '04"',
+          time: '16:18',
+          text: '刚才爬三楼觉得胸骨后有点发紧，停下来歇了两分钟好了，要紧吗？'
+        },
+        {
+          id: 'msg_shr_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '16:18',
+          text: '1. 劳力后胸骨后发紧、休息 2 分钟缓解符合 **劳力性心绞痛** 特征，请原地继续静息观察。\n2. 请确保今日 **单硝酸异山梨酯缓释片(40mg)**、**阿司匹林** 与 **阿托伐他汀** 已按时服用；若发作频率增加或静息也痛，请及时心内科复诊。',
+          tags: ['心绞痛评估', '二级预防']
+        }
+      ],
+      pt_huanglihua: [
+        {
+          id: 'msg_hlh_1',
+          role: 'assistant',
+          source: 'system',
+          time: '08:10',
+          text: '黄丽华女士，已同步您的高血压、偏头痛及缺铁性贫血档案（共 2 项在用药物）。',
+          tags: ['档案已同步', '贫血纠正']
+        },
+        {
+          id: 'msg_hlh_2',
+          role: 'user',
+          source: 'h5',
+          time: '08:14',
+          text: '吃完琥珀酸亚铁之后大便有点发黑，而且早上血压 142/90，正常吗？'
+        },
+        {
+          id: 'msg_hlh_3',
+          role: 'assistant',
+          source: 'ai',
+          time: '08:14',
+          text: '1. 服用 **琥珀酸亚铁片** 后大便呈黑褐色属于铁剂正常代谢现象，无需担心；建议餐后服用并搭配维生素C促进吸收。\n2. **晨起血压 142/90** 属轻度晨峰偏高，请晨起后即刻服用 **左氨氯地平片(2.5mg)** 并连续监测 3 天。',
+          tags: ['铁剂须知', '晨峰血压']
         }
       ]
     };
