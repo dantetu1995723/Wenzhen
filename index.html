@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>HEARTMED 哈瑞特医疗 · 问诊手表与微信扫码 H5 交互系统</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/logo-mark.svg" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. TOP WORKBENCH NAVIGATION (4-Step Flow + Dedicated Step 5 Orb/UI Spec)
+       ======================================================================== -->
+  <header class="workbench-header">
+    <div class="brand-cluster">
+      <img src="./assets/logo.png" alt="HEARTMED 哈瑞特医疗" class="brand-logo-img" />
+      <div class="brand-divider"></div>
+      <span class="brand-badge">纯白科技风 · 双端同源光球</span>
+    </div>
+
+    <!-- PPT 4-Step Flow + Step 5 Dedicated Orb & UI Specification View -->
+    <nav class="flow-steps-nav" aria-label="交互流程与光球设计细节切换">
+      <button type="button" class="flow-step-btn" data-step="1">
+        <span class="step-num">1</span>
+        <span>扫码绑定</span>
+      </button>
+      <button type="button" class="flow-step-btn" data-step="2">
+        <span class="step-num">2</span>
+        <span>注册登录</span>
+      </button>
+      <button type="button" class="flow-step-btn" data-step="3">
+        <span class="step-num">3</span>
+        <span>用户信息</span>
+      </button>
+      <button type="button" class="flow-step-btn active" data-step="4">
+        <span class="step-num">4</span>
+        <span>问诊对话</span>
+      </button>
+      <button type="button" class="flow-step-btn spec-tab-btn" data-step="5">
+        <span class="step-num">★</span>
+        <span>光球动画与UI设计细节</span>
+      </button>
+    </nav>
+
+    <!-- Unified TechOrb 2-State Quick Switcher (Only Normal & Conversation states) -->
+    <div class="orb-state-bar">
+      <button type="button" class="orb-chip active" data-orb-state="idle">正常状态</button>
+      <button type="button" class="orb-chip" data-orb-state="listening">对话状态</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. MAIN STAGE (Dual-Device Arena for Steps 1..4 + Spec View for Step 5)
+       ======================================================================== -->
+  <main class="workbench-stage">
+
+    <!-- ======================================================================
+         PART A: DUAL-DEVICE INTERACTIVE STAGE (Steps 1 ~ 4)
+         ====================================================================== -->
+    <div class="devices-arena" id="devices-arena">
+
+      <!-- ====================================================================
+           LEFT DEVICE: WECHAT H5 MOBILE TERMINAL (White-Dominant High-Tech)
+           ==================================================================== -->
+      <section class="device-column" aria-label="手机微信扫码 H5 端">
+        <div class="device-caption">
+          <span class="dot"></span>
+          <span>手机端 · 微信扫码 H5 界面（支持直接打字）</span>
+        </div>
+
+        <div class="phone-shell">
+          <div class="phone-screen">
+
+            <!-- Phone Status Bar -->
+            <div class="phone-statusbar">
+              <span id="phone-clock">09:41</span>
+              <span>5G · 100%</span>
+            </div>
+
+            <!-- Integrated Minimalist White-Tech Navigation Header (Left: Back Capsule, Center: Orb+HEARTMED or Subpage Title, Right: Person Select / Action Capsule) -->
+            <div class="h5-topbar" id="h5-topbar">
+              <div class="topbar-left">
+                <button type="button" class="topbar-nav-capsule back-capsule" id="btn-topbar-back" title="返回上一页">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  <span id="topbar-back-label">返回</span>
+                </button>
+              </div>
+              <div class="topbar-center">
+                <!-- Fixed Static Original HEARTMED Logo as Navbar Title -->
+                <div class="topbar-brand-fixed" id="topbar-brand-fixed" title="HEARTMED 原装标志">
+                  <img src="./assets/logo-mark.svg" alt="HEARTMED" class="topbar-brand-mark" />
+                  <span class="topbar-brand-text">HEART<em>MED</em></span>
+                </div>
+                <!-- Secondary Full-Page Title (Symmetrically Centered) -->
+                <span class="topbar-page-title" id="topbar-page-title" style="display:none;">选择问诊人物</span>
+              </div>
+              <div class="topbar-right">
+                <!-- Chat View: Current Patient Capsule -->
+                <button type="button" class="topbar-nav-capsule pt-capsule" id="btn-topbar-pt" title="点击选择人物档案">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span id="topbar-pt-text">陈敏</span>
+                  <span class="pt-capsule-arrow">▾</span>
+                </button>
+
+                <!-- Person Selector Page: Add Person Capsule -->
+                <button type="button" class="topbar-nav-capsule action-capsule" id="btn-topbar-add-person" style="display:none;" title="手动填写新档案">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>手动填写</span>
+                </button>
+
+                <!-- Profile Edit Page: Save Capsule (Same spec & color as Left Back button) -->
+                <button type="button" class="topbar-nav-capsule save-capsule" id="btn-topbar-save-profile" style="display:none;" title="保存患者档案">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  <span>保存</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ==============================================================
+                 PHONE VIEW 1: WECHAT QR SCANNER (Slide 2)
+                 ============================================================== -->
+            <div class="phone-view scanner-view" id="phone-view-1">
+              <div>
+                <h2 class="scanner-title">微信扫一扫 · 绑定手表</h2>
+                <p class="scanner-sub">对准右侧问诊手表屏幕二维码</p>
+              </div>
+
+              <div class="scanner-box" id="btn-simulate-scan" title="点击模拟扫码成功">
+                <span class="scan-corner tl"></span>
+                <span class="scan-corner tr"></span>
+                <span class="scan-corner bl"></span>
+                <span class="scan-corner br"></span>
+                <div class="scan-laser-line"></div>
+
+                <div class="scanner-qr-preview">
+                  <svg viewBox="0 0 120 120" width="118" height="118">
+                    <rect width="120" height="120" rx="8" fill="#ffffff"/>
+                    <path d="M12,12 h30 v30 h-30 z M18,18 v18 h18 v-18 z M22,22 h10 v10 h-10 z" fill="#142c46"/>
+                    <path d="M78,12 h30 v30 h-30 z M84,18 v18 h18 v-18 z M88,22 h10 v10 h-10 z" fill="#142c46"/>
+                    <path d="M12,78 h30 v30 h-30 z M18,84 v18 h18 v-18 z M22,88 h10 v10 h-10 z" fill="#142c46"/>
+                    <rect x="50" y="14" width="8" height="8" fill="#2c88dc"/>
+                    <rect x="62" y="22" width="8" height="16" fill="#1cbcd0"/>
+                    <rect x="48" y="48" width="24" height="24" rx="5" fill="#1cbcd0"/>
+                    <rect x="16" y="52" width="18" height="8" fill="#142c46"/>
+                    <rect x="82" y="52" width="22" height="8" fill="#2c88dc"/>
+                    <rect x="50" y="82" width="14" height="8" fill="#142c46"/>
+                    <rect x="74" y="76" width="10" height="28" fill="#1cbcd0"/>
+                    <rect x="92" y="88" width="16" height="16" fill="#142c46"/>
+                  </svg>
+                </div>
+              </div>
+
+              <button type="button" class="btn-cyber-primary" id="btn-scan-action">
+                <span>模拟微信扫码 → 进入 H5</span>
+              </button>
+            </div>
+
+            <!-- ==============================================================
+                 PHONE VIEW 2: UNIFIED LOGIN / REGISTER H5 (登录即注册)
+                 ============================================================== -->
+            <div class="phone-view auth-view" id="phone-view-2">
+              <div class="auth-brand-header">
+                <img src="./assets/logo-mark.svg" alt="HEARTMED" width="38" height="38" />
+                <h3>HEARTMED</h3>
+              </div>
+
+              <form class="cyber-auth-card" id="auth-form">
+                <div class="cyber-input-group">
+                  <label for="auth-username">账号</label>
+                  <input type="text" class="cyber-input" id="auth-username" value="138****6620" placeholder="请输入手机号 / 账号" required />
+                </div>
+
+                <div class="cyber-input-group">
+                  <label for="auth-password">密码</label>
+                  <input type="password" class="cyber-input" id="auth-password" value="12345678" placeholder="请输入密码" required />
+                </div>
+
+                <button type="submit" class="btn-cyber-primary">
+                  <span id="auth-submit-text">登录 / 注册</span>
+                </button>
+
+                <p class="auth-unified-tip">未注册账号登录即自动完成注册</p>
+              </form>
+            </div>
+
+            <!-- ==============================================================
+                 PHONE VIEW 3: MAIN USER ONBOARDING PROFILE PAGE (Step 3)
+                 Clean purpose notice + full keyboard pop-up adaptation for every module.
+                 ============================================================== -->
+            <div class="phone-view userinfo-view" id="phone-view-3">
+              <!-- Main User (Self) 8-Field Form + Bottom "进入问诊" CTA + Adaptive Soft Keyboard -->
+              <form class="userinfo-form-container" id="self-onboarding-form">
+                <div class="userinfo-scroll-body" id="userinfo-scroll-body">
+                  <!-- 1. Clean Minimalist Purpose Notice (说明填写信息的意义) -->
+                  <div class="userinfo-purpose-notice">
+                    <div class="purpose-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                      </svg>
+                    </div>
+                    <div class="purpose-text">
+                      <h4>完善个人健康信息</h4>
+                      <p>结合基础体征与慢病用药，助力 AI 提供精准个体化诊疗建议</p>
+                    </div>
+                  </div>
+
+                  <!-- Card A: Identity & 3-Tile Vitals Dashboard -->
+                  <div class="userinfo-card vitals-card" data-module-card="vitals">
+                    <div class="identity-row">
+                      <div class="identity-name-box" data-field-wrap="s-pt-name">
+                        <label for="s-pt-name">姓名</label>
+                        <input type="text" id="s-pt-name" data-field-label="姓名" placeholder="请输入您的姓名" required />
+                      </div>
+                      <div class="identity-gender-box">
+                        <label>性别</label>
+                        <input type="hidden" id="s-pt-gender" value="女" />
+                        <div class="gender-seg-control" id="self-gender-seg">
+                          <button type="button" class="gender-seg-btn active" data-self-gender="女">女</button>
+                          <button type="button" class="gender-seg-btn" data-self-gender="男">男</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="vitals-metrics-grid">
+                      <div class="vital-metric-tile" data-field-wrap="s-pt-age">
+                        <label for="s-pt-age">年龄</label>
+                        <div class="vital-val-row">
+                          <input type="number" id="s-pt-age" data-field-label="年龄" min="1" max="120" required />
+                          <span class="vital-unit">岁</span>
+                        </div>
+                      </div>
+                      <div class="vital-metric-tile" data-field-wrap="s-pt-weight">
+                        <label for="s-pt-weight">体重</label>
+                        <div class="vital-val-row">
+                          <input type="number" id="s-pt-weight" data-field-label="体重" min="1" max="300" step="0.5" required />
+                          <span class="vital-unit">kg</span>
+                        </div>
+                      </div>
+                      <div class="vital-metric-tile" data-field-wrap="s-pt-height">
+                        <label for="s-pt-height">身高</label>
+                        <div class="vital-val-row">
+                          <input type="number" id="s-pt-height" data-field-label="身高" min="30" max="250" required />
+                          <span class="vital-unit">cm</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card B: Clinical Profile (History, Medications, Extra Info) -->
+                  <div class="userinfo-card clinical-card" data-module-card="clinical">
+                    <div class="clinical-field-block" data-field-wrap="s-pt-history">
+                      <label for="s-pt-history">
+                        <span class="field-dot cyan"></span>
+                        <span>既往病史</span>
+                      </label>
+                      <input type="text" id="s-pt-history" data-field-label="既往病史" placeholder="如：高血压; 冠心病" />
+                    </div>
+
+                    <div class="clinical-field-block" data-field-wrap="s-pt-meds">
+                      <label for="s-pt-meds">
+                        <span class="field-dot blue"></span>
+                        <span>当前用药</span>
+                      </label>
+                      <textarea id="s-pt-meds" data-field-label="当前用药" rows="4" placeholder="每行一项用药"></textarea>
+                    </div>
+
+                    <div class="clinical-field-block" data-field-wrap="s-pt-extra">
+                      <label for="s-pt-extra">
+                        <span class="field-dot teal"></span>
+                        <span>其他信息</span>
+                      </label>
+                      <textarea id="s-pt-extra" data-field-label="其他信息" rows="3" placeholder="生化指标或补充信息"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Bottom Primary CTA: 进入问诊 (Hidden automatically when keyboard pops up) -->
+                <div class="userinfo-bottom-bar" id="userinfo-bottom-bar">
+                  <button type="submit" class="btn-enter-consult" id="btn-enter-consult">
+                    <span>进入问诊</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- 4. Adaptive Mobile Keyboard Drawer for Form Modules (键盘弹上适配与模块自动上滚居中) -->
+                <div class="uf-kbd-drawer" id="userinfo-kbd-drawer" aria-hidden="true">
+                  <div class="uf-kbd-toolbar">
+                    <div class="uf-kbd-nav-btns">
+                      <button type="button" class="uf-kbd-nav-btn" id="btn-uf-prev-field" title="切换上一项">‹ 上一项</button>
+                      <button type="button" class="uf-kbd-nav-btn" id="btn-uf-next-field" title="切换下一项">下一项 ›</button>
+                    </div>
+                    <span class="uf-kbd-active-title">正在填写：<strong id="uf-kbd-field-label">当前用药</strong></span>
+                    <button type="button" class="uf-kbd-done-btn" id="btn-uf-kbd-done">完成 ⌄</button>
+                  </div>
+
+                  <!-- Quick Clinical Chips for Fast Input -->
+                  <div class="uf-kbd-chips-bar" id="uf-kbd-quick-chips"></div>
+
+                  <!-- Numeric Keypad (for 年龄 / 体重 / 身高) -->
+                  <div class="uf-kbd-numpad" id="uf-kbd-numpad" style="display:none;">
+                    <button type="button" class="uf-num-key" data-num-key="1">1</button>
+                    <button type="button" class="uf-num-key" data-num-key="2">2</button>
+                    <button type="button" class="uf-num-key" data-num-key="3">3</button>
+                    <button type="button" class="uf-num-key" data-num-key="4">4</button>
+                    <button type="button" class="uf-num-key" data-num-key="5">5</button>
+                    <button type="button" class="uf-num-key" data-num-key="6">6</button>
+                    <button type="button" class="uf-num-key" data-num-key="7">7</button>
+                    <button type="button" class="uf-num-key" data-num-key="8">8</button>
+                    <button type="button" class="uf-num-key" data-num-key="9">9</button>
+                    <button type="button" class="uf-num-key fn" data-num-key=".">.</button>
+                    <button type="button" class="uf-num-key" data-num-key="0">0</button>
+                    <button type="button" class="uf-num-key fn" data-num-key="del">⌫</button>
+                  </div>
+
+                  <!-- Compact Text Keyboard (for 姓名 / 既往病史 / 当前用药 / 其他信息) -->
+                  <div class="uf-kbd-qwerty" id="uf-kbd-qwerty">
+                    <div class="uf-qwerty-row">
+                      <button type="button" class="uf-q-key">Q</button><button type="button" class="uf-q-key">W</button><button type="button" class="uf-q-key">E</button><button type="button" class="uf-q-key">R</button><button type="button" class="uf-q-key">T</button><button type="button" class="uf-q-key">Y</button><button type="button" class="uf-q-key">U</button><button type="button" class="uf-q-key">I</button><button type="button" class="uf-q-key">O</button><button type="button" class="uf-q-key">P</button>
+                    </div>
+                    <div class="uf-qwerty-row r2">
+                      <button type="button" class="uf-q-key">A</button><button type="button" class="uf-q-key">S</button><button type="button" class="uf-q-key">D</button><button type="button" class="uf-q-key">F</button><button type="button" class="uf-q-key">G</button><button type="button" class="uf-q-key">H</button><button type="button" class="uf-q-key">J</button><button type="button" class="uf-q-key">K</button><button type="button" class="uf-q-key">L</button>
+                    </div>
+                    <div class="uf-qwerty-row">
+                      <button type="button" class="uf-q-key fn" data-q-action="semi">；</button><button type="button" class="uf-q-key">Z</button><button type="button" class="uf-q-key">X</button><button type="button" class="uf-q-key">C</button><button type="button" class="uf-q-key">V</button><button type="button" class="uf-q-key">B</button><button type="button" class="uf-q-key">N</button><button type="button" class="uf-q-key">M</button><button type="button" class="uf-q-key fn" data-q-action="del">⌫</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- ==============================================================
+                 PHONE VIEW 4: CLINICAL CHAT + RIGHT-CORNER ROLE SWITCHER (Step 4)
+                 ============================================================== -->
+            <div class="phone-view h5-main-view active" id="phone-view-4">
+              <!-- SUBPAGE A: Chat Dialogue Stream -->
+              <div class="h5-subpage active" id="h5-chat-subpage">
+                <!-- 1. Max-Height Clinical Dialogue Stream (Full Space for Chat) -->
+                <div class="cyber-chat-list" id="cyber-chat-list">
+                  <!-- Populated dynamically by js/app.js -->
+                </div>
+
+                <!-- 2. Minimalist Chat Bottom Bar: 平时[文字输入框 + 发送按钮]；手表语音时[输入框占满整行 + 内部光球结合“正在语音”动画文字] -->
+                <div class="chat-simple-dock" id="chat-bottom-dock">
+                  <form class="simple-chat-bar" id="cyber-chat-form">
+                    <!-- Input Slot (Spans full row when Watch Voice is active) -->
+                    <div class="simple-input-wrap">
+                      <!-- Normal State: Traditional Text Input -->
+                      <input
+                        type="text"
+                        class="simple-chat-input"
+                        id="cyber-chat-input"
+                        placeholder="输入健康疑问或用药咨询..."
+                        autocomplete="off"
+                      />
+
+                      <!-- Watch Voice Active State: Full-Row Input Box with Rotating 3D Particle Orb + Animated "正在语音" Text -->
+                      <div class="voice-speaking-capsule" id="voice-speaking-capsule" title="手表正在语音输入（点击可结束语音）">
+                        <div class="voice-capsule-orb-wrap">
+                          <canvas id="orb-h5-voice"></canvas>
+                        </div>
+                        <span class="voice-speaking-text">
+                          <span class="voice-text-shimmer">正在语音</span><span class="voice-anim-dots"><i>.</i><i>.</i><i>.</i></span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Send Button (Hidden automatically when full-row voice capsule is active) -->
+                    <button type="submit" class="btn-chat-send" id="btn-cyber-send" title="发送消息">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- SUBPAGE B: Right-Corner Role Selector & Profile Edit Page -->
+              <div class="h5-subpage" id="h5-profile-edit-page">
+                <div class="profile-edit-scroll">
+                  <!-- 1. Symmetrical Role Switcher & Management Card -->
+                  <div class="role-control-card">
+                    <div class="role-control-top">
+                      <div class="role-status-wrap">
+                        <span class="role-status-dot"></span>
+                        <span class="role-status-text" id="pt-loaded-badge">预设档案 · 已加载历史</span>
+                      </div>
+                      <div class="role-control-actions">
+                        <button type="button" class="btn-role-action add" id="btn-pt-create" title="手动填写新档案">
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                          </svg>
+                          <span>手动填写</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Custom Styled White-Tech Dropdown Container -->
+                    <div class="custom-dropdown-container" id="custom-pt-dropdown">
+                      <button type="button" class="custom-dropdown-trigger" id="btn-custom-pt-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <div class="trigger-left">
+                          <span class="trigger-icon">👤</span>
+                          <span class="trigger-label" id="custom-pt-label">陈敏（本人 · 女 · 51岁）</span>
+                        </div>
+                        <svg class="trigger-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+
+                      <!-- Floating Custom Menu -->
+                      <div class="custom-dropdown-menu" id="custom-pt-menu" role="listbox">
+                        <!-- Group 1: 用户本人 -->
+                        <div class="dropdown-group-section">
+                          <div class="dropdown-section-title">
+                            <span class="section-dot cyan"></span>
+                            <span>用户本人档案</span>
+                          </div>
+                          <div class="dropdown-items-group" id="menu-self-group">
+                            <!-- Populated dynamically by js/app.js -->
+                          </div>
+                        </div>
+
+                        <!-- Divider line -->
+                        <div class="dropdown-divider"></div>
+
+                        <!-- Group 2: 预设人物 -->
+                        <div class="dropdown-group-section">
+                          <div class="dropdown-section-title">
+                            <span class="section-dot blue"></span>
+                            <span>预设与常用人物</span>
+                          </div>
+                          <div class="dropdown-items-group" id="menu-preset-group">
+                            <!-- Populated dynamically by js/app.js -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 2. Essential 8-Field Patient Form (Symmetric Cards) -->
+                  <form class="userinfo-form-container" id="pt-edit-form">
+                    <input type="hidden" id="f-pt-id" />
+
+                    <!-- Card A: Identity (Name & Gender Seg Control) + 3-Tile Vitals Dashboard -->
+                    <div class="userinfo-card vitals-card">
+                      <div class="identity-row">
+                        <div class="identity-name-box">
+                          <label for="f-pt-name">姓名</label>
+                          <input type="text" id="f-pt-name" placeholder="请输入姓名" required />
+                        </div>
+                        <div class="identity-gender-box">
+                          <label>性别</label>
+                          <input type="hidden" id="f-pt-gender" value="女" />
+                          <div class="gender-seg-control" id="edit-gender-seg">
+                            <button type="button" class="gender-seg-btn active" data-gender="女">女</button>
+                            <button type="button" class="gender-seg-btn" data-gender="男">男</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="vitals-metrics-grid">
+                        <div class="vital-metric-tile">
+                          <label for="f-pt-age">年龄</label>
+                          <div class="vital-val-row">
+                            <input type="number" id="f-pt-age" min="1" max="120" required />
+                            <span class="vital-unit">岁</span>
+                          </div>
+                        </div>
+                        <div class="vital-metric-tile">
+                          <label for="f-pt-weight">体重</label>
+                          <div class="vital-val-row">
+                            <input type="number" id="f-pt-weight" min="1" max="300" step="0.5" required />
+                            <span class="vital-unit">kg</span>
+                          </div>
+                        </div>
+                        <div class="vital-metric-tile">
+                          <label for="f-pt-height">身高</label>
+                          <div class="vital-val-row">
+                            <input type="number" id="f-pt-height" min="30" max="250" required />
+                            <span class="vital-unit">cm</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Card B: Clinical Profile (History, Medications, Extra Info) -->
+                    <div class="userinfo-card clinical-card">
+                      <div class="clinical-field-block">
+                        <label for="f-pt-history">
+                          <span class="field-dot cyan"></span>
+                          <span>既往病史</span>
+                        </label>
+                        <input type="text" id="f-pt-history" placeholder="如：高血压; 冠心病" />
+                      </div>
+
+                      <div class="clinical-field-block">
+                        <label for="f-pt-meds">
+                          <span class="field-dot blue"></span>
+                          <span>当前用药</span>
+                        </label>
+                        <textarea id="f-pt-meds" rows="4" placeholder="每行一项用药"></textarea>
+                      </div>
+
+                      <div class="clinical-field-block">
+                        <label for="f-pt-extra">
+                          <span class="field-dot teal"></span>
+                          <span>其他信息</span>
+                        </label>
+                        <textarea id="f-pt-extra" rows="3" placeholder="生化指标或补充说明"></textarea>
+                      </div>
+                    </div>
+
+                    <!-- Card C: Symmetrical Bottom Action Bar -->
+                    <div class="profile-bottom-bar">
+                      <button type="submit" class="btn-profile-save" id="btn-profile-save-bottom">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                          <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        <span>保存患者档案</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           CENTER SYNC BRIDGE
+           ==================================================================== -->
+      <div class="sync-bridge-column">
+        <div class="bridge-card">
+          <img src="./assets/logo-mark.svg" alt="" width="26" height="26" />
+          <div class="bridge-beam"></div>
+          <span class="bridge-label" id="bridge-status-text">双端实时同步中</span>
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           RIGHT DEVICE: SMARTWATCH TERMINAL (White-Tech + Same 3D Crystal Orb)
+           ==================================================================== -->
+      <section class="device-column" aria-label="哈瑞特智能问诊手表端">
+        <div class="device-caption">
+          <span class="dot"></span>
+          <span>手表端 · HEARTMED 智能问诊表</span>
+        </div>
+
+        <div class="watch-hardware-wrap">
+          <div class="watch-strap-top"></div>
+
+          <div class="watch-shell">
+            <div class="watch-crown" id="watch-crown-btn" title="点击表冠切换步骤"></div>
+            <div class="watch-side-btn"></div>
+
+            <div class="watch-screen">
+              <!-- WATCH VIEW 1: QR CODE BINDING (Slide 2 - No extra text) -->
+              <div class="watch-view" id="watch-view-1">
+                <div class="watch-qr-card" id="watch-qr-trigger" title="点击模拟微信扫码">
+                  <svg viewBox="0 0 120 120" width="148" height="148">
+                    <rect width="120" height="120" rx="10" fill="#ffffff"/>
+                    <path d="M10,10 h32 v32 h-32 z M16,16 v20 h20 v-20 z M21,21 h10 v10 h-10 z" fill="#142c46"/>
+                    <path d="M78,10 h32 v32 h-32 z M84,16 v20 h20 v-20 z M89,21 h10 v10 h-10 z" fill="#142c46"/>
+                    <path d="M10,78 h32 v32 h-32 z M16,84 v20 h20 v-20 z M21,89 h10 v10 h-10 z" fill="#142c46"/>
+                    <rect x="48" y="12" width="8" height="16" fill="#2c88dc"/>
+                    <rect x="62" y="18" width="8" height="18" fill="#1cbcd0"/>
+                    <rect x="14" y="48" width="22" height="8" fill="#1cbcd0"/>
+                    <rect x="82" y="50" width="24" height="8" fill="#142c46"/>
+                    <rect x="48" y="82" width="16" height="8" fill="#2c88dc"/>
+                    <rect x="72" y="74" width="10" height="32" fill="#1cbcd0"/>
+                    <rect x="90" y="86" width="18" height="18" fill="#142c46"/>
+                  </svg>
+                  <img src="./assets/logo-mark.svg" alt="" class="watch-qr-center-logo" />
+                </div>
+              </div>
+
+              <!-- WATCH VIEW 2: BINDING SUCCESS (Slide 3 - Minimal) -->
+              <div class="watch-view" id="watch-view-2">
+                <div class="watch-check-orb">
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <button type="button" class="watch-swipe-bar" id="btn-watch-next-step">
+                  <span style="font-size:11.5px;font-weight:800;color:var(--hm-blue);">下一步</span>
+                  <span class="swipe-arrow">»»</span>
+                </button>
+              </div>
+
+              <!-- WATCH VIEW 3 & 4: EXPANSIVE 3D ORB STAGE + INTEGRATED HEARTMED LOGO START/END BUTTON -->
+              <div class="watch-view active" id="watch-view-3">
+                <div class="watch-orb-stage">
+                  <canvas id="orb-watch-main"></canvas>
+                  <button type="button" class="watch-press-btn" id="btn-watch-hold" aria-label="点击开始或结束说话" title="点击开始 / 点击结束"></button>
+                </div>
+
+                <button type="button" class="watch-hold-label" id="watch-hold-label">
+                  <span class="watch-btn-brand">
+                    <img src="./assets/logo-mark.svg" alt="HEARTMED" />
+                    <span class="watch-btn-brand-name">HEART<em>MED</em></span>
+                  </span>
+                  <span class="watch-btn-divider"></span>
+                  <span class="watch-btn-action">
+                    <span class="watch-btn-dot"></span>
+                    <span id="watch-hold-text">点击开始</span>
+                  </span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="watch-strap-bottom"></div>
+        </div>
+
+        <!-- Quick Watch Voice Simulation Panel -->
+        <div class="watch-sim-panel">
+          <div class="watch-sim-title">🎙️ 手表语音快捷模拟（点击触发双端光球声波律动）：</div>
+          <button type="button" class="btn-watch-sim" data-watch-sim="我今天早上起来有点头晕，测了血压是 146/92，要不要紧？">
+            “早上起来有点头晕，测了血压 146/92，要不要紧？”
+          </button>
+          <button type="button" class="btn-watch-sim" data-watch-sim="昨晚胸口有点发闷，阿司匹林和氨氯地平还要继续吃吗？">
+            “胸口有点发闷，阿司匹林和氨氯地平还要继续吃吗？”
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======================================================================
+         PART B: DEDICATED STEP 5 — TECH ORB & WHITE-TECH UI SPECIFICATION VIEW
+         ("光球动画你重新设计，并在html用一个界面单独描述细节")
+         ====================================================================== -->
+    <section class="orb-spec-stage" id="orb-spec-stage" aria-label="科技光球动画与白色科技UI设计细节">
+
+      <!-- Left Column: Interactive Minimalist 2-State 3D Particle Orb Laboratory -->
+      <div class="spec-left-card">
+        <div class="spec-card-header">
+          <div class="spec-card-title">
+            <img src="./assets/logo-mark.svg" alt="" width="22" height="22" />
+            <span>极简双态 3D 粒子光球 · 拆解实验室</span>
+          </div>
+          <span class="spec-badge">仅正常/对话双态 · 简单慢旋 · 简单放大缩小</span>
+        </div>
+
+        <div class="spec-orb-showcase">
+          <canvas id="orb-spec-canvas" title="点击切换「正常状态 (1.00×) ↔ 对话状态 (1.22×)」"></canvas>
+          <div class="spec-state-desc" id="spec-state-desc">
+            正常状态：规整纯净的 3D 粒子球保持 1.00× 舒适饱满占比（直径约占舞台 68%），以 0.20 rad/s 恒定慢速平稳旋转，无任何抖动与杂乱光环。
+          </div>
+        </div>
+
+        <!-- 5-Layer Interactive Switches -->
+        <div class="spec-layers-box">
+          <div class="spec-section-subtitle">
+            <span>分层渲染结构开关（点击可单独检视每一层）</span>
+            <button type="button" id="btn-reset-layers" style="font-size:11px;color:var(--hm-blue);font-weight:700;">全部开启</button>
+          </div>
+          <div class="layer-toggle-grid">
+            <button type="button" class="layer-toggle-btn active" data-layer="haloAndRing">
+              <span>L1. 对话放大 / 结束缩小整球缩放</span>
+              <span class="dot-ind"></span>
+            </button>
+            <button type="button" class="layer-toggle-btn active" data-layer="crystalShell">
+              <span>L2. 球心柔和青蓝底光雾（无光环）</span>
+              <span class="dot-ind"></span>
+            </button>
+            <button type="button" class="layer-toggle-btn active" data-layer="interlockingRibbons">
+              <span>L3. 远景深层粒子群（后半球 z&lt;0）</span>
+              <span class="dot-ind"></span>
+            </button>
+            <button type="button" class="layer-toggle-btn active" data-layer="quantumNodes">
+              <span>L4. 中景主体粒子群（规整球面）</span>
+              <span class="dot-ind"></span>
+            </button>
+            <button type="button" class="layer-toggle-btn active" data-layer="coreAndMatrix" style="grid-column: span 2;">
+              <span>L5. 前景柔光大微粒（立体景深高光）</span>
+              <span class="dot-ind"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Typing Ripple Tester inside Spec View -->
+        <div class="spec-typing-box">
+          <div class="spec-section-subtitle">
+            <span>⌨️ 实时打字测试（可直接打字并发送至 H5 对话）</span>
+            <button type="button" class="btn-auto-type-demo" id="btn-spec-auto-type">自动打字演示</button>
+          </div>
+          <form class="spec-typing-row" id="spec-typing-form">
+            <input
+              type="text"
+              class="spec-typing-input"
+              id="spec-typing-input"
+              placeholder="在此直接打字，或点击上方粒子球切换正常/对话状态..."
+              autocomplete="off"
+            />
+            <button type="submit" class="btn-cyber-send">发送至H5对话</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Detailed Architecture & Brand Visual System Breakdown -->
+      <div class="spec-right-card">
+        <div class="spec-card-header">
+          <div class="spec-card-title">
+            <span>HEARTMED 哈瑞特医疗 · 极简双态 3D 粒子光球与纯白科技 UI 规范</span>
+          </div>
+          <button type="button" class="btn-cyber-pt" id="btn-back-to-flow" style="height:30px;">
+            返回双端交互演示 →
+          </button>
+        </div>
+
+        <!-- 1. Brand Color Extraction -->
+        <div>
+          <div class="spec-section-subtitle" style="margin-bottom:8px;">
+            <span>1. 品牌色彩提取与纯白高级主基调（Minimalist White-Tech）</span>
+          </div>
+          <div class="spec-palette-row">
+            <div class="swatch-card">
+              <div class="swatch-circle" style="background:#1CBCD0;"></div>
+              <div class="swatch-info">
+                <h5>HEART 心律青</h5>
+                <p>#1CBCD0 · RGB(28,188,208)</p>
+              </div>
+            </div>
+            <div class="swatch-card">
+              <div class="swatch-circle" style="background:#2C88DC;"></div>
+              <div class="swatch-info">
+                <h5>MED 医疗蓝</h5>
+                <p>#2C88DC · RGB(44,136,220)</p>
+              </div>
+            </div>
+            <div class="swatch-card">
+              <div class="swatch-circle" style="background:linear-gradient(135deg,#FFFFFF 0%,#E8F7FC 100%);border:1px solid #1CBCD0;"></div>
+              <div class="swatch-info">
+                <h5>珠光纯白基底</h5>
+                <p>#FFFFFF → #F7FBFF</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Minimalist 2-State 3D Particle Sphere Breakdown -->
+        <div>
+          <div class="spec-section-subtitle" style="margin-bottom:8px;">
+            <span>2. 「极简双态 · 简单慢旋 + 简单放大缩小」核心设计准则</span>
+          </div>
+          <div class="arch-list">
+            <div class="arch-item">
+              <h5>01 · 仅保留「正常」与「对话」两种状态</h5>
+              <p>彻底移除思考、分析、播报等冗余中间状态对光球的干扰：只有<strong>正常状态（<code>1.00×</code> 舒适饱满占比）</strong>与<strong>对话状态（<code>1.22×</code> 均匀放大）</strong>，干净纯粹。</p>
+            </div>
+            <div class="arch-item">
+              <h5>02 · 零无规则抖动（规整球体慢速旋转）</h5>
+              <p>完全去除任何球面噪声与不规则凹凸形变，260 颗青蓝景深微粒严格保持规整球体结构，以 <code>0.20 rad/s</code> 恒定慢速平稳自转。</p>
+            </div>
+            <div class="arch-item">
+              <h5>03 · 点击开始简单放大 · 点击结束简单缩小</h5>
+              <p>点击手表「点击开始」进入对话状态，整颗粒子球均匀平滑放大至 <code>1.22×</code>；点击「点击结束」，整颗粒子球立即平滑缩小回 <code>1.00×</code> 舒适占比。</p>
+            </div>
+            <div class="arch-item">
+              <h5>04 · 舒适视觉占比与零边界遮挡</h5>
+              <p>无任何外圈线框或轨道环，基准半径设为画布 <code>0.335×</code>（正常态直径约占 68%），对话放大 <code>1.22×</code>（直径约占 82%）时亦完全处于安全边界内，绝不裁切。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 2-State Kinetic Parameter Matrix -->
+        <div>
+          <div class="spec-section-subtitle" style="margin-bottom:8px;">
+            <span>3. 极简双态粒子球参数对比表</span>
+          </div>
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>光球状态</th>
+                <th>球体慢旋角速度</th>
+                <th>整球缩放比例</th>
+                <th>球体几何形态</th>
+                <th>触发方式（手机 H5 &amp; 手表同源同步）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>正常状态 (Idle)</strong></td>
+                <td><code>0.20 rad/s 恒定慢旋</code></td>
+                <td><code>1.00× 舒适占比 (68%)</code></td>
+                <td>规整球体 · 零无规则抖动</td>
+                <td>默认状态，以及点击手表「点击结束」后的复原状态</td>
+              </tr>
+              <tr>
+                <td><strong>对话状态 (Active)</strong></td>
+                <td><code>0.20 rad/s 恒定慢旋</code></td>
+                <td><code>1.22× 均匀放大 (82%)</code></td>
+                <td>规整球体 · 整球均匀轻呼吸</td>
+                <td>点击手表「点击开始」说话期间（按钮变为「■ 点击结束」）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast-msg" id="toast-msg"></div>
+
+  <!-- Core Scripts -->
+  <script src="./js/orb.js"></script>
+  <script src="./js/patients.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

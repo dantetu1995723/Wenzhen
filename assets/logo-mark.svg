@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Upper-Right Teal-Cyan Interlocking Arm (#1CBCD0 from HEARTMED logo) -->
+  <path
+    d="M44 18 H72 C76.4 18 80 21.6 80 26 V42 H96 C100.4 42 104 45.6 104 50 V76 C104 80.4 100.4 84 96 84 H76"
+    stroke="#1CBCD0"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- Lower-Left Medical-Blue Interlocking Arm (#2C88DC from HEARTMED logo) -->
+  <path
+    d="M44 36 H24 C19.6 36 16 39.6 16 44 V70 C16 74.4 19.6 78 24 78 H40 V94 C40 98.4 43.6 102 48 102 H76"
+    stroke="#2C88DC"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
