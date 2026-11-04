@@ -196,8 +196,13 @@
     els.btnSpecAutoType = document.getElementById("btn-spec-auto-type");
     els.btnBackToFlow = document.getElementById("btn-back-to-flow");
 
-    // Toast & Interactive Coachmark Layer
+    // Toast, Clear Confirm Modal & Interactive Coachmark Layer
     els.toast = document.getElementById("toast-msg");
+    els.clearConfirmModal = document.getElementById("clear-confirm-modal");
+    els.clearModalTitle = document.getElementById("clear-modal-title");
+    els.clearModalDesc = document.getElementById("clear-modal-desc");
+    els.btnClearModalCancel = document.getElementById("btn-clear-modal-cancel");
+    els.btnClearModalConfirm = document.getElementById("btn-clear-modal-confirm");
     els.btnReplayGuide = document.getElementById("btn-replay-guide");
     els.coachmarkLayer = document.getElementById("coachmark-layer");
     els.coachmarkRing = document.getElementById("coachmark-ring");
@@ -319,6 +324,7 @@
     const stepNum = Number(step);
     if (![1, 2, 3, 4, 5].includes(stepNum)) return;
     state.currentStep = stepNum;
+    closeClearConfirmModal();
 
     // 1. Update Top Step Buttons
     els.stepBtns.forEach((btn) => {
@@ -761,7 +767,33 @@
     els.sPtNameCombo.classList.toggle("open", isOpen);
   }
 
-  function handleClearStep3Form() {
+  function openClearConfirmModal({ title, desc, confirmText, onConfirm }) {
+    if (!els.clearConfirmModal) {
+      if (typeof onConfirm === "function") onConfirm();
+      return;
+    }
+    state.pendingClearConfirm = onConfirm || null;
+    if (els.clearModalTitle) {
+      els.clearModalTitle.textContent = title || "确认清空？";
+    }
+    if (els.clearModalDesc) {
+      els.clearModalDesc.textContent = desc || "清空后将无法恢复，是否继续？";
+    }
+    if (els.btnClearModalConfirm) {
+      els.btnClearModalConfirm.textContent = confirmText || "确认清空";
+    }
+    els.clearConfirmModal.classList.add("active");
+    els.clearConfirmModal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeClearConfirmModal() {
+    state.pendingClearConfirm = null;
+    if (!els.clearConfirmModal) return;
+    els.clearConfirmModal.classList.remove("active");
+    els.clearConfirmModal.setAttribute("aria-hidden", "true");
+  }
+
+  function executeClearStep3Form() {
     state.step3EditingId = null;
     toggleStep3NameDropdown(false);
     if (els.sPtName) els.sPtName.value = "";
@@ -780,6 +812,16 @@
     renderStep3NameDropdown();
     if (els.sPtName) els.sPtName.focus();
     showToast("已清空当前信息 · 填写后点「进入问诊」自动保存");
+  }
+
+  function handleClearStep3Form() {
+    toggleStep3NameDropdown(false);
+    openClearConfirmModal({
+      title: "确认清空当前表单信息？",
+      desc: "将清空当前已填写的姓名、体征与病史用药内容（不会删除已保存档案），您可以重新填写或新建人物。",
+      confirmText: "确认清空",
+      onConfirm: executeClearStep3Form
+    });
   }
 
   /**
@@ -1143,24 +1185,22 @@
   function handleClearCapsuleClick() {
     const activePt = store.getActive();
     if (!activePt) return;
-    if (state.clearConfirmTimer) {
-      handleConfirmClearHistory();
-      return;
-    }
     if (!state.historyHasQa) {
       showToast(`「${activePt.name}」暂无可清空的问答记录`);
       return;
     }
-    setClearCapsuleState("confirming");
-    clearTimeout(state.clearConfirmTimer);
-    state.clearConfirmTimer = setTimeout(() => {
-      closeHistoryClearConfirm();
-    }, 3800);
+    openClearConfirmModal({
+      title: `确认清空「${activePt.name}」的问诊记录？`,
+      desc: "清空后将移除该人物的历史问答对话，仅保留初始档案欢迎语，是否继续？",
+      confirmText: "确认清空",
+      onConfirm: handleConfirmClearHistory
+    });
   }
 
   function closeHistoryClearConfirm() {
     clearTimeout(state.clearConfirmTimer);
     state.clearConfirmTimer = null;
+    closeClearConfirmModal();
     setClearCapsuleState(state.historyHasQa === false ? "empty" : "idle");
   }
 
@@ -2241,6 +2281,29 @@
     if (els.btnBackToFlow) {
       els.btnBackToFlow.addEventListener("click", () => {
         switchStep(4);
+      });
+    }
+
+    // Clear Confirm Modal Actions (确认清空 / 取消 / 点击遮罩关闭)
+    if (els.btnClearModalCancel) {
+      els.btnClearModalCancel.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeClearConfirmModal();
+      });
+    }
+    if (els.btnClearModalConfirm) {
+      els.btnClearModalConfirm.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const cb = state.pendingClearConfirm;
+        closeClearConfirmModal();
+        if (typeof cb === "function") cb();
+      });
+    }
+    if (els.clearConfirmModal) {
+      els.clearConfirmModal.addEventListener("click", (e) => {
+        if (e.target === els.clearConfirmModal) {
+          closeClearConfirmModal();
+        }
       });
     }
 
